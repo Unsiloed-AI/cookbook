@@ -1,0 +1,13 @@
+[project]
+name = "unsiloed-cookbook"
+version = "0.1.0"
+description = "Recipes and examples for building with the Unsiloed API"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+dependencies = [
+    "anthropic",
+    "requests",
+    "jupyter",
+    "python-dotenv",
+]
