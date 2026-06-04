@@ -1,8 +1,8 @@
 # Unsiloed Cookbook
 
-Recipes for integrating [Unsiloed](https://docs.unsiloed.ai)'s document AI — parsing, extraction, classification, and splitting — into agentic systems and AI runtimes.
+Recipes for wiring [Unsiloed](https://docs.unsiloed.ai)'s document AI — parse, extract, classify, split — into the AI provider, agent framework, or runtime of your choice.
 
-The cookbook is organized to stay agnostic across AI providers and runtimes. Each recipe lives under the provider or skill family it targets, so adding support for a new model or a new agent framework is a self-contained drop-in.
+The cookbook stays agnostic by design: each recipe is scoped to a single provider or skill family, so adding a new model, SDK, or agent runtime is a self-contained drop-in.
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ pip install -e .
 
 ### By AI provider
 
-Recipes built around a specific model or SDK.
+Recipes built around a specific model, SDK, or agent framework.
 
 | Provider | Recipe | Description |
 |----------|--------|-------------|
@@ -35,7 +35,7 @@ Recipes built around a specific model or SDK.
 
 ### Portable agent skills
 
-Runtime-agnostic `SKILL.md` files that plug into any skill-capable agent (Claude Code, Claude.ai, OpenClaw, custom agents).
+Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions — that plug into any skill-capable agent: Claude Code, Claude.ai, OpenClaw, custom runtimes.
 
 | Skill | Description |
 |-------|-------------|
