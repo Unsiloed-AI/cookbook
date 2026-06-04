@@ -23,7 +23,7 @@ cp .env.example .env
 
 pip install -e .
 
-cd claude-tool-use
+cd claude/tool-use
 jupyter notebook claude_unsiloed_extraction.ipynb
 ```
 
