@@ -17,6 +17,12 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 
+# Recipe-generated output
+unsiloed_output/
+
+# Agent / editor workspaces
+.claude/
+
 # IDE
 .vscode/
 .idea/

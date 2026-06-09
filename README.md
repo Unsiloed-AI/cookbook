@@ -32,6 +32,7 @@ Recipes built around a specific model, SDK, or agent framework.
 | Provider | Recipe | Description |
 |----------|--------|-------------|
 | Claude | [Tool Use](./claude/tool-use/) | Give Claude structured access to Unsiloed via Anthropic's tool-use API |
+| OpenAI | [Agentic CLI](./openai/cli/) | LangChain ReAct agent in a terminal REPL — plain-English document processing via Unsiloed |
 
 ### Portable agent skills
 
@@ -46,8 +47,9 @@ Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions �
 ```
 cookbook/
 ├── claude/         # Claude-specific recipes (tool use, agents, etc.)
+├── openai/         # OpenAI-specific recipes (CLI, agents, etc.)
 ├── skills/         # Portable SKILL.md files for skill-capable runtimes
-└── <provider>/     # Add new provider folders as siblings (openai/, gemini/, ...)
+└── <provider>/     # Add new provider folders as siblings (gemini/, langchain/, ...)
 ```
 
 ## Contributing
