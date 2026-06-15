@@ -34,6 +34,14 @@ Recipes built around a specific model, SDK, or agent framework.
 | Claude | [Tool Use](./claude/tool-use/) | Give Claude structured access to Unsiloed via Anthropic's tool-use API |
 | OpenAI | [Agentic CLI](./openai/cli/) | LangChain ReAct agent in a terminal REPL — plain-English document processing via Unsiloed |
 
+### Benchmarks
+
+Scored, reproducible comparisons that aren't tied to one provider.
+
+| Benchmark | Description |
+|-----------|-------------|
+| [Vision LLM vs. parser](./vision-vs-parser/) | Hands one dense 251-row financial table to a vision LLM and to Unsiloed, scored against the source's own figures: 100% vs 56% cell accuracy. Runs from cached responses with no keys |
+
 ### Portable agent skills
 
 Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions — that plug into any skill-capable agent: Claude Code, Claude.ai, OpenClaw, custom runtimes.

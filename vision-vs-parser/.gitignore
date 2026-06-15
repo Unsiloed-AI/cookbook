@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Live-run artifacts; the repo ships its own cached/ responses to score against.
+results/*.json
