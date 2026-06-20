@@ -32,6 +32,7 @@ Recipes built around a specific model, SDK, or agent framework.
 | Provider | Recipe | Description |
 |----------|--------|-------------|
 | Claude | [Tool Use](./claude/tool-use/) | Give Claude structured access to Unsiloed via Anthropic's tool-use API |
+| Claude | [Due-Diligence Agent](./due-diligence/) | Upload a deal PDF → Unsiloed parse + Claude (LangChain) analyst + E2B sandbox that verifies every figure → risk-flagged diligence memo you can chat with |
 | OpenAI | [Agentic CLI](./openai/cli/) | LangChain ReAct agent in a terminal REPL — plain-English document processing via Unsiloed |
 
 ### Portable agent skills
