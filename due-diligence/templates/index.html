@@ -1,0 +1,143 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Due Diligence — Unsiloed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div class="logo">Unsiloed<span>· Due Diligence</span></div>
+  <div class="tag">Agentic OCR &nbsp;→&nbsp; analyst reasoning</div>
+</div></header>
+
+<main class="wrap">
+  <!-- LANDING -->
+  <section id="landing">
+    <div class="hero">
+      <h1>Diligence any document</h1>
+      <p>Upload a prospectus, 10-K, merger agreement, or financial statement.
+        <strong>Unsiloed</strong> reads it — tables, multi-column legal text, scans — and
+        <strong>Claude Opus 4.8</strong> writes a risk-flagged diligence memo you can then
+        interrogate. <span class="muted">Figures come from the document, not the model.</span></p>
+    </div>
+
+    <form id="upload-form">
+      <label id="dropzone" for="file-input">
+        <input id="file-input" type="file" name="document" accept="application/pdf" hidden>
+        <div class="dz-icon">⬆</div>
+        <div class="dz-main">Drop a PDF here, or <span class="link">browse</span></div>
+        <div class="dz-sub">Prospectus · 10-K · merger / credit agreement · financial statements</div>
+        <div id="dz-file" class="dz-file"></div>
+      </label>
+      <button id="go" class="btn solid big" type="submit" disabled>Run due diligence</button>
+    </form>
+
+    <div id="status" class="status" hidden>
+      <div class="spinner"></div>
+      <div><div id="status-main">Working…</div><div id="status-sub" class="muted"></div></div>
+    </div>
+    <div id="err" class="errbox" hidden></div>
+  </section>
+
+  <!-- REPORT + CHAT -->
+  <section id="result" hidden>
+    <div class="result-head">
+      <button class="btn" onclick="location.reload()">← New document</button>
+    </div>
+    <div class="result-grid">
+      <article id="memo" class="memo"></article>
+      <aside class="chat">
+        <div class="chat-head">Ask about this document</div>
+        <div id="chat-log" class="chat-log">
+          <div class="msg bot">Ask me anything — risks, numbers, terms, what's missing. Answers are grounded in the document text.</div>
+        </div>
+        <form id="chat-form" class="chat-input">
+          <input id="chat-text" type="text" placeholder="e.g. What's the lock-up period? Who controls the votes?" autocomplete="off">
+          <button class="btn solid" type="submit">Send</button>
+        </form>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer class="foot wrap">
+  Document read by Unsiloed agentic OCR · analysis &amp; chat by Claude Opus 4.8 · for demonstration only, not investment advice.
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+let analysisId = null;
+
+// upload UX
+const dz = $('#dropzone'), input = $('#file-input'), go = $('#go'), fileLabel = $('#dz-file');
+function setFile(f){ if(!f) return; fileLabel.textContent = '📄 ' + f.name; go.disabled = false; }
+input.addEventListener('change', () => setFile(input.files[0]));
+['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => {ev.preventDefault(); dz.classList.add('over');}));
+['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => {ev.preventDefault(); dz.classList.remove('over');}));
+dz.addEventListener('drop', ev => { if(ev.dataTransfer.files.length){ input.files = ev.dataTransfer.files; setFile(input.files[0]); }});
+
+const sampleBtn = $('#sample-btn');
+if (sampleBtn) sampleBtn.addEventListener('click', () => submit(true));
+$('#upload-form').addEventListener('submit', e => { e.preventDefault(); submit(false); });
+
+const stages = ["Reading the document with Unsiloed…","Parsing tables and layout…","Analyzing with Claude Opus 4.8…","Synthesizing risks and red flags…"];
+let stageTimer = null;
+function runStatus(){
+  let i = 0; $('#status-sub').textContent = stages[0];
+  stageTimer = setInterval(() => { i = (i+1) % stages.length; $('#status-sub').textContent = stages[i]; }, 6000);
+}
+
+async function submit(useSample){
+  $('#err').hidden = true;
+  $('#upload-form').hidden = true;
+  if (sampleBtn) sampleBtn.hidden = true;
+  $('#status').hidden = false;
+  $('#status-main').textContent = useSample ? "Diligencing the SpaceX IPO prospectus…" : "Diligencing your document…";
+  runStatus();
+  const fd = new FormData();
+  if (useSample) fd.append('sample','1');
+  else fd.append('document', input.files[0]);
+  try {
+    const r = await fetch('/analyze', {method:'POST', body: fd});
+    const data = await r.json();
+    clearInterval(stageTimer);
+    if (!r.ok) throw new Error(data.error || 'Analysis failed');
+    analysisId = data.id;
+    $('#memo').innerHTML = data.memo_html;
+    $('#landing').hidden = true;
+    $('#result').hidden = false;
+  } catch (e) {
+    clearInterval(stageTimer);
+    $('#status').hidden = true;
+    $('#err').hidden = false; $('#err').textContent = e.message;
+    $('#upload-form').hidden = false;
+  }
+}
+
+// chat
+$('#chat-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const t = $('#chat-text'); const q = t.value.trim(); if(!q || !analysisId) return;
+  addMsg('user', q); t.value = '';
+  const thinking = addMsg('bot', '…'); thinking.classList.add('pending');
+  try {
+    const r = await fetch('/chat', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({id: analysisId, message: q})});
+    const data = await r.json();
+    thinking.classList.remove('pending');
+    thinking.textContent = r.ok ? data.answer : ('⚠ ' + (data.error||'error'));
+  } catch (e) { thinking.classList.remove('pending'); thinking.textContent = '⚠ ' + e.message; }
+});
+function addMsg(who, text){
+  const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text;
+  $('#chat-log').appendChild(d); $('#chat-log').scrollTop = 1e9; return d;
+}
+</script>
+</body>
+</html>
