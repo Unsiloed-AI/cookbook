@@ -1,0 +1,150 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --shadow-card: 0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08);
+  --shadow-pop: 0 12px 40px -12px rgba(248, 97, 168, 0.35);
+}
+
+:root {
+  --radius: 0.875rem;
+  /* Light, clean analytics palette with single pink accent */
+  --background: oklch(0.99 0.003 280);
+  --foreground: oklch(0.18 0.02 270);
+  --surface: oklch(1 0 0);
+  --surface-muted: oklch(0.975 0.005 280);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 270);
+  /* Pink accent #F861A8 ≈ oklch(0.69 0.20 350) */
+  --primary: oklch(0.69 0.20 350);
+  --primary-foreground: oklch(0.99 0.003 280);
+  --secondary: oklch(0.965 0.006 280);
+  --secondary-foreground: oklch(0.22 0.02 270);
+  --muted: oklch(0.965 0.006 280);
+  --muted-foreground: oklch(0.50 0.02 270);
+  --accent: oklch(0.95 0.04 350);
+  --accent-foreground: oklch(0.30 0.10 350);
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.92 0.008 280);
+  --input: oklch(0.92 0.008 280);
+  --ring: oklch(0.69 0.20 350);
+  --success: oklch(0.68 0.16 155);
+  --warning: oklch(0.78 0.15 75);
+  --danger: oklch(0.62 0.22 25);
+  /* Chart palette: pink-led, supportive neutrals */
+  --chart-1: oklch(0.69 0.20 350);
+  --chart-2: oklch(0.62 0.18 320);
+  --chart-3: oklch(0.55 0.10 280);
+  --chart-4: oklch(0.72 0.12 230);
+  --chart-5: oklch(0.78 0.13 200);
+  --chart-6: oklch(0.80 0.10 90);
+}
+
+.dark {
+  --background: oklch(0.16 0.02 270);
+  --foreground: oklch(0.97 0.003 280);
+  --surface: oklch(0.20 0.02 270);
+  --surface-muted: oklch(0.22 0.02 270);
+  --card: oklch(0.20 0.02 270);
+  --card-foreground: oklch(0.97 0.003 280);
+  --popover: oklch(0.20 0.02 270);
+  --popover-foreground: oklch(0.97 0.003 280);
+  --primary: oklch(0.74 0.18 350);
+  --primary-foreground: oklch(0.16 0.02 270);
+  --secondary: oklch(0.26 0.02 270);
+  --secondary-foreground: oklch(0.97 0.003 280);
+  --muted: oklch(0.26 0.02 270);
+  --muted-foreground: oklch(0.72 0.02 270);
+  --accent: oklch(0.30 0.06 340);
+  --accent-foreground: oklch(0.97 0.003 280);
+  --destructive: oklch(0.68 0.20 25);
+  --destructive-foreground: oklch(0.97 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.74 0.18 350);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Reusable utility classes */
+@layer components {
+  .ts-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-card);
+  }
+  .ts-chip {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.3rem 0.65rem; border-radius: 999px;
+    font-size: 0.78rem; font-weight: 500;
+    background: var(--color-surface-muted); color: var(--color-muted-foreground);
+    border: 1px solid var(--color-border);
+  }
+  .ts-traceable {
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.15s ease;
+    border-radius: 0.375rem;
+  }
+  .ts-traceable:hover {
+    background-color: var(--color-accent);
+  }
+  .ts-traceable::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -2px;
+    height: 1px;
+    background-image: linear-gradient(to right, var(--color-primary) 50%, transparent 50%);
+    background-size: 6px 1px;
+    opacity: 0.5;
+  }
+}
