@@ -22,6 +22,7 @@ The skill uses the common `SKILL.md` convention (YAML frontmatter, instructions 
 - **[Hermes Agent](https://hermes-agent.nousresearch.com/)** — install from this repo with one command (below).
 - **[Claude Code skills](https://docs.claude.com/en/docs/claude-code/skills)** — drop into `~/.claude/skills/unsiloed-hitl-extract/SKILL.md`.
 - **[Claude.ai Skills](https://www.anthropic.com/news/skills)** — upload via the Skills UI.
+- **OpenClaw** — `openclaw skills install` from a Git URL or local path. The frontmatter carries the same `openclaw` metadata block as the sibling `unsiloed` skill, declaring the required env var and binaries.
 - **Custom agents** — load `SKILL.md` as a system prompt fragment. The interactive steps need a human in the conversation; in non-interactive contexts the skill falls back to fields-from-invocation with HITL off.
 
 ## Install
@@ -46,6 +47,12 @@ curl -fsSL https://raw.githubusercontent.com/Unsiloed-AI/cookbook/main/skills/un
   -o ~/.claude/skills/unsiloed-hitl-extract/SKILL.md
 ```
 
+### OpenClaw
+
+```bash
+openclaw skills install git:https://github.com/Unsiloed-AI/cookbook --subpath skills/unsiloed-hitl-extract
+```
+
 ## Configure the API key
 
 The skill expects `UNSILOED_API_KEY` in the agent's environment. Get a key from [unsiloed.ai](https://www.unsiloed.ai), then export it for the agent process:
@@ -54,7 +61,7 @@ The skill expects `UNSILOED_API_KEY` in the agent's environment. Get a key from 
 export UNSILOED_API_KEY=us_...
 ```
 
-On Hermes, run `hermes setup` to store the key in the agent's secrets store instead; it passes through to the terminal sandbox automatically.
+On Hermes, run `hermes setup` to store the key in the agent's secrets store instead; it passes through to the terminal sandbox automatically. On OpenClaw, add the key to the gateway's env file and restart, as described in the sibling [`unsiloed` skill README](../unsiloed/README.md#configure-the-api-key).
 
 ## Verify
 

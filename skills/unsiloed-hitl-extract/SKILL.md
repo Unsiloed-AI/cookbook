@@ -1,7 +1,7 @@
 ---
 name: unsiloed-hitl-extract
 description: Guided document data extraction with human-in-the-loop review, powered by Unsiloed AI. Use when the user points at a document (PDF, scan, photo, DOCX, XLSX) and wants specific fields pulled out of it — names, totals, dates, ID numbers, line items — especially when they want to choose the fields interactively, pick an output format (JSON, CSV, Markdown), or verify low-confidence values against an annotated copy of the document before trusting them. Trigger phrases include "extract the data from this document", "pull the fields from this invoice", "get the totals and dates out of this PDF", "extract this with verification".
-version: 1.2.0
+version: 1.3.0
 required_environment_variables:
   - name: UNSILOED_API_KEY
     prompt: Unsiloed API key
@@ -11,6 +11,10 @@ metadata:
   hermes:
     tags: [documents, extraction, ocr, human-in-the-loop]
     category: documents
+  openclaw:
+    requires:
+      env: [UNSILOED_API_KEY]
+      bins: [curl, jq]
 ---
 
 # Unsiloed Extract — guided extraction with human review
@@ -22,7 +26,13 @@ This skill is pure instructions: everything runs through `curl` and whatever ima
 ## Requirements
 
 - `curl` and `jq` on the PATH.
-- `UNSILOED_API_KEY` in the environment. If unset, check for a `.env` in the working directory and source it; otherwise ask the user to provide the key or to add it to their framework's secrets store (`hermes setup` on Hermes; an exported variable elsewhere). Those are the only places it lives — the skill has no config file of its own, so don't go hunting for one. Never echo the key back.
+- `UNSILOED_API_KEY` in the environment. If unset, check for a `.env` in the working directory and read the one variable out of it — never `source` the file, which would execute whatever else it contains:
+
+  ```bash
+  export UNSILOED_API_KEY=$(sed -n '/^UNSILOED_API_KEY=/{s///p;q;}' .env)
+  ```
+
+  Otherwise ask the user to provide the key or to add it to their framework's secrets store (`hermes setup` on Hermes; an exported variable elsewhere). Those are the only places it lives — the skill has no config file of its own, so don't go hunting for one. Never echo the key back.
 - For the HITL annotated image (optional, with graceful fallback): any one of Python 3 with `pymupdf`/`Pillow`, `pdftoppm` (poppler), or ImageMagick.
 
 API base is `https://prod.visionapi.unsiloed.ai`. Every call authenticates with an `api-key` header carrying `UNSILOED_API_KEY`. Build that header string once per session and reuse it in every call:
@@ -75,7 +85,7 @@ Also ask (or infer) whether output goes into the chat, into a file next to the s
 
 ### Step 3 — Human-in-the-loop review
 
-Ask whether they want HITL verification: after extraction, any field scoring below a confidence threshold (**default 0.97**) gets shown to them with an annotated image of the document so they can accept or correct each value.
+Ask whether they want HITL verification: after extraction, any field scoring below a confidence threshold (**default 0.97**) gets shown to them with an annotated image of the document so they can accept or correct each value. This is deliberately stricter than the `score >= 0.85` bar the general `unsiloed` skill treats as reliable: here a human is available to check flagged values, so borderline scores go to them instead of being trusted.
 
 Offer to make their answer the default for future runs so they aren't re-asked. If the framework has persistent skill config or memory, store it there (Hermes: skill config; Claude Code: memory); otherwise remember it for the session and note it in your reply. Let them override the 0.97 threshold up front if they mention one.
 
@@ -100,6 +110,10 @@ JOB=$(curl -s -X POST https://prod.visionapi.unsiloed.ai/v2/extract \
   -F "model=gamma" \
   -F "enable_citations=true" | jq -r '.job_id')
 
+if [ -z "$JOB" ] || [ "$JOB" = "null" ]; then
+  echo "submission failed — no job_id returned" >&2; exit 1
+fi
+
 for _ in $(seq 60); do   # 60 × 5s = 300s cap
   R=$(curl -s "https://prod.visionapi.unsiloed.ai/extract/$JOB" -H "$UNSILOED_AUTH")
   S=$(echo "$R" | jq -r '.status')
@@ -110,7 +124,9 @@ done
 echo "$R" > <DOCNAME>-extract-raw.json   # keep the full raw response as the audit trail
 ```
 
-`pdf_file=@...` accepts images too, despite the name. If the input is a **large photo or scan image** (roughly 9 megapixels or more), downscale it to ~1500 px on the long side first (`magick in.jpg -resize 1500x1500 out.jpg`, or `sips --resampleWidth 1500` on macOS, or Pillow) — oversized images make the API silently return empty values with score 0 and no error.
+If the status is still `processing` when the loop ends, the job outlived the 300-second cap; it has not failed. Keep polling in a fresh loop (dense documents can take several minutes), and tell the user the job is taking longer than usual rather than reading results out of a processing response.
+
+`pdf_file=@...` accepts images too, despite the name.
 
 ### Step 5 — Read the result
 
@@ -131,7 +147,6 @@ Reading rules (each of these has silently corrupted a real run before):
 - **Array and object nodes are wrapped too.** A schema field that is an array arrives as `{"score": ..., "value": [...], "citation": ...}` — the rows live at `.result.<field>.value`, not `.result.<field>` (a naive `length` on the wrapper counts its three keys, not your rows). Array-of-*object* row fields sit directly on each row object.
 - **Array-of-string items are double-wrapped.** Each item arrives as `{"__value__": {"value": ..., "score": ..., "citation": ...}}` — the string is at `item.__value__.value`, not `item.value`. Always unwrap `__value__` when present.
 - **Blank cells come back as empty string with score ~0 and a citation near (not on) the blank.** That's a legitimate "nothing printed here" — put it in the HITL review so the human confirms the cell really is blank, and don't treat the slightly-offset box as a bug.
-- **Flat 0.95 everywhere is a placeholder, not a score.** If every field reports grounding exactly 0.95 with null extraction scores, the scoring pass didn't run. Don't present those as real confidences — resubmit once, and if it persists, tell the user the scores are unavailable and treat every field as needing review.
 - **`bbox` is `[x1, y1, x2, y2]`**, top-left origin, in units where the page is `page_width × page_height` (PDF points).
 
 If HITL is **off**: convert the values to the agreed format (strip the score/citation wrappers), deliver, and you're done. Mention in passing if anything scored conspicuously low, but don't run the review loop.
