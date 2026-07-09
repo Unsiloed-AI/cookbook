@@ -1,0 +1,29 @@
+{
+  "name": "@arcane/game-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "node scripts/mp-smoke.mjs",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@arcane/db": "workspace:*",
+    "@arcane/shared": "workspace:*",
+    "@colyseus/core": "^0.16.4",
+    "@colyseus/schema": "^3.0.25",
+    "@colyseus/ws-transport": "^0.16.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "colyseus.js": "^0.16.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

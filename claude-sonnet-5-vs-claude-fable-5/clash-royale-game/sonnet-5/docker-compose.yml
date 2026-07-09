@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: arcane-towers-db-sonnet
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: arcane
+      POSTGRES_PASSWORD: arcane
+      POSTGRES_DB: arcane_towers_sonnet
+    ports:
+      - "5433:5432"
+    volumes:
+      - arcane_towers_sonnet_data:/var/lib/postgresql/data
+
+volumes:
+  arcane_towers_sonnet_data:
