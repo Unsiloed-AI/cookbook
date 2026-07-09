@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-abyss: #070a14;
+  --color-panel: #0e1322;
+  --color-panel-2: #141b30;
+  --color-edge: #232c4a;
+  --color-arcane: #7c6cf5;
+  --color-arcane-bright: #a99cff;
+  --color-gold: #f5c95c;
+  --color-ember: #ff7038;
+  --color-frost: #6ec9f5;
+  --color-grass: #5fbf6e;
+  --color-blood: #f5626d;
+
+  --font-display: "Trebuchet MS", "Verdana", ui-sans-serif, system-ui, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-abyss);
+  color: #e7eaf6;
+  font-family: var(--font-display);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124, 108, 245, 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 110%, rgba(245, 201, 92, 0.07), transparent);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(124, 108, 245, 0.5);
+}
+
+/* Thin styled scrollbars for card lists */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #232c4a;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 18px rgba(124, 108, 245, 0.35); }
+  50% { box-shadow: 0 0 34px rgba(124, 108, 245, 0.65); }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}

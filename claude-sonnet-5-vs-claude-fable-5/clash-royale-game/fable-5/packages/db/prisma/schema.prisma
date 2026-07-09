@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id        String        @id
+  name      String
+  trophies  Int           @default(1000)
+  wins      Int           @default(0)
+  losses    Int           @default(0)
+  draws     Int           @default(0)
+  isBot     Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  matches   MatchPlayer[]
+}
+
+model Match {
+  id           String        @id @default(cuid())
+  mode         String // "pvp" | "practice"
+  endReason    String // "main-tower" | "timeout" | "surrender" | "disconnect" | "draw"
+  durationSec  Int
+  createdAt    DateTime      @default(now())
+  participants MatchPlayer[]
+}
+
+model MatchPlayer {
+  id              String @id @default(cuid())
+  matchId         String
+  playerId        String
+  result          String // "win" | "loss" | "draw"
+  trophyDelta     Int    @default(0)
+  towersDestroyed Int    @default(0)
+  towersLost      Int    @default(0)
+  damageDealt     Int    @default(0)
+  cardsPlayed     Int    @default(0)
+  energySpent     Int    @default(0)
+
+  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId])
+  @@index([matchId])
+}
+
+/// Mirror of the card definitions in @arcane/shared, kept for querying/history.
+model Card {
+  id          String @id
+  name        String
+  type        String
+  cost        Int
+  rarity      String
+  description String
+  stats       Json
+}

@@ -1,0 +1,25 @@
+{
+  "name": "arcane-towers",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @arcane-towers/web dev",
+    "dev:server": "pnpm --filter @arcane-towers/game-server dev",
+    "dev:all": "concurrently -n web,server -c blue,magenta \"pnpm dev\" \"pnpm dev:server\"",
+    "build": "pnpm -r --filter=./packages/** build && pnpm -r --filter=./apps/** build",
+    "db:generate": "pnpm --filter @arcane-towers/db db:generate",
+    "db:push": "pnpm --filter @arcane-towers/db db:push",
+    "db:seed": "pnpm --filter @arcane-towers/db db:seed",
+    "db:studio": "pnpm --filter @arcane-towers/db db:studio",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "pnpm@10.33.0"
+}

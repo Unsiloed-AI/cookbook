@@ -1,0 +1,37 @@
+{
+  "name": "arcane-towers",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Arcane Towers — real-time 1v1 lane tower battle game",
+  "scripts": {
+    "dev": "dotenv -e .env -c -- concurrently -n server,web -c magenta,cyan \"pnpm --filter @arcane/game-server dev\" \"pnpm --filter @arcane/web dev\"",
+    "dev:web": "dotenv -e .env -c -- pnpm --filter @arcane/web dev",
+    "dev:server": "dotenv -e .env -c -- pnpm --filter @arcane/game-server dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm --filter @arcane/game-server test",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:push": "dotenv -e .env -c -- pnpm --filter @arcane/db push",
+    "db:seed": "dotenv -e .env -c -- pnpm --filter @arcane/db seed",
+    "db:generate": "pnpm --filter @arcane/db generate"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv-cli": "^8.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "@tailwindcss/oxide",
+      "esbuild",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
