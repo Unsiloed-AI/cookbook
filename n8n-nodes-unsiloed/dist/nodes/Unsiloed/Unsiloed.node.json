@@ -1,0 +1,10 @@
+{
+	"node": "n8n-nodes-base.unsiloed",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage", "Utility"],
+	"resources": {
+		"credentialDocumentation": [{ "url": "https://docs.unsiloed.ai" }],
+		"primaryDocumentation": [{ "url": "https://docs.unsiloed.ai" }]
+	}
+}
