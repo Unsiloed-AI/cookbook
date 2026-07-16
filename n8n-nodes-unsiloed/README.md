@@ -13,14 +13,14 @@ n8n Extract from PDF →  "OFCGOET  Ofcgoet Fg. IC-9762 ...  Zgzqsrxt $33,002.99
 Unsiloed             →  "INVOICE  Invoice No. HV-2087 ...  Total due  $11,557.22"
 ```
 
-Both node operations force OCR on the rendered pixels, so a bad text layer can't poison the result.
+Parse forces OCR on the rendered pixels, and Extract reads the rendered document by design, so a bad text layer can't poison either result.
 
 ## What the Node Does
 
 The node has two operations:
 
 - **Parse:** OCR the document and return layout-aware Markdown (headings, tables, paragraphs). No schema required.
-- **Extract:** pull named fields into JSON using a schema you define (invoice number, totals, dates, line items). Each value comes back with per-field confidence scores.
+- **Extract:** pull named fields into JSON using a schema you define (invoice number, totals, dates, line items). Each value comes back with a confidence score and a citation (page and bounding box).
 
 ## Installing on Self-Hosted n8n
 
@@ -96,11 +96,11 @@ Extract returns structured JSON, so you tell it which fields to pull with a JSON
 }
 ```
 
-Each property becomes a key in the output, with its `value` and a per-field `grounding_score` and `extraction_score` you can act on. To run Extract on a different document, change the property names and descriptions to the fields you want. The schema above is generic enough to work on most invoices as-is; a receipt, a contract, or an ID needs its own field list.
+Each property becomes a key in the output, with its `value`, a per-field `grounding_score` and `extraction_score`, and a `citation` (page and bounding box) you can act on. To run Extract on a different document, change the property names and descriptions to the fields you want. The schema above is generic enough to work on most invoices as-is; a receipt, a contract, or an ID needs its own field list.
 
-The **Model** option defaults to `gamma`, which is the most reliable on scans and photos.
+Extraction runs on Unsiloed's `gamma` model (the recommended, most thorough tier), with citations enabled so every field comes back grounded.
 
-Once you have the output, wire it into a spreadsheet, a database, a notification, or a language-model step. The [`examples/`](./examples) folder has ready-to-import workflows, including a Parse before-and-after against the built-in extractor.
+Once you have the output, wire it into a spreadsheet, a database, a notification, or a language-model step. The [`examples/`](./examples) folder has a ready-to-import Parse workflow with a sample document.
 
 ## Building From Source
 

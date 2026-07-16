@@ -94,17 +94,6 @@ class Unsiloed {
                     displayOptions: { show: { operation: ['extract'] } },
                     description: 'JSON Schema describing the fields to extract',
                 },
-                {
-                    displayName: 'Model',
-                    name: 'model',
-                    type: 'options',
-                    default: 'gamma',
-                    displayOptions: { show: { operation: ['extract'] } },
-                    options: [
-                        { name: 'Gamma (best on scans & images)', value: 'gamma' },
-                        { name: 'Alpha', value: 'alpha' },
-                    ],
-                },
             ],
         };
     }
@@ -170,7 +159,7 @@ class Unsiloed {
                         const parts = [];
                         for (const chunk of result.chunks || []) {
                             for (const seg of chunk.segments || []) {
-                                const text = seg.markdown || seg.text || '';
+                                const text = seg.markdown || seg.content || '';
                                 if (text)
                                     parts.push(text);
                             }
@@ -188,7 +177,6 @@ class Unsiloed {
                 }
                 else {
                     // operation === 'extract'
-                    const model = this.getNodeParameter('model', i);
                     const schemaRaw = this.getNodeParameter('schema', i);
                     const schema = typeof schemaRaw === 'string' ? schemaRaw : JSON.stringify(schemaRaw);
                     const submit = (await this.helpers.request({
@@ -198,9 +186,10 @@ class Unsiloed {
                         formData: {
                             pdf_file: { value: buffer, options: { filename: fileName, contentType } },
                             schema_data: schema,
-                            model,
-                            // OCR the rendered pixels so a broken/garbled text layer can't poison the values.
-                            ocr_strategy: 'force_ocr',
+                            model: 'gamma',
+                            // Run the grounding pass so every field returns real confidence scores
+                            // plus a citation (page + bounding box).
+                            enable_citations: 'true',
                         },
                         json: true,
                     }));

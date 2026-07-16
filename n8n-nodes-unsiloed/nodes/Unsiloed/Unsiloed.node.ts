@@ -106,17 +106,6 @@ export class Unsiloed implements INodeType {
 				displayOptions: { show: { operation: ['extract'] } },
 				description: 'JSON Schema describing the fields to extract',
 			},
-			{
-				displayName: 'Model',
-				name: 'model',
-				type: 'options',
-				default: 'gamma',
-				displayOptions: { show: { operation: ['extract'] } },
-				options: [
-					{ name: 'Gamma (best on scans & images)', value: 'gamma' },
-					{ name: 'Alpha', value: 'alpha' },
-				],
-			},
 		],
 	};
 
@@ -188,7 +177,7 @@ export class Unsiloed implements INodeType {
 						const parts: string[] = [];
 						for (const chunk of (result.chunks as IDataObject[]) || []) {
 							for (const seg of (chunk.segments as IDataObject[]) || []) {
-								const text = (seg.markdown as string) || (seg.text as string) || '';
+								const text = (seg.markdown as string) || (seg.content as string) || '';
 								if (text) parts.push(text);
 							}
 						}
@@ -204,7 +193,6 @@ export class Unsiloed implements INodeType {
 					}
 				} else {
 					// operation === 'extract'
-					const model = this.getNodeParameter('model', i) as string;
 					const schemaRaw = this.getNodeParameter('schema', i) as string | IDataObject;
 					const schema = typeof schemaRaw === 'string' ? schemaRaw : JSON.stringify(schemaRaw);
 
@@ -215,9 +203,10 @@ export class Unsiloed implements INodeType {
 						formData: {
 							pdf_file: { value: buffer, options: { filename: fileName, contentType } },
 							schema_data: schema,
-							model,
-							// OCR the rendered pixels so a broken/garbled text layer can't poison the values.
-							ocr_strategy: 'force_ocr',
+							model: 'gamma',
+							// Run the grounding pass so every field returns real confidence scores
+							// plus a citation (page + bounding box).
+							enable_citations: 'true',
 						},
 						json: true,
 					})) as IDataObject;
