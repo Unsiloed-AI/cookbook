@@ -1,0 +1,9 @@
+name: unsiloed
+version: 1.0.0
+description: "Unsiloed-powered document ingestion for Hermes. Parses PDFs, tables, charts and scans into clean Markdown + structured JSON, files them into the workspace and the LLM Wiki with frontmatter/wikilinks/provenance, distills facts into MEMORY.md, and adds a hybrid (FTS5 + semantic) document_search tool for cross-session recall."
+author: "unsiloed-demo"
+kind: backend
+provides_tools:
+  - unsiloed_ingest
+  - unsiloed_extract
+  - document_search
