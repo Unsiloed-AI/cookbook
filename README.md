@@ -37,11 +37,12 @@ Recipes built around a specific model, SDK, or agent framework.
 
 ### Portable agent skills
 
-Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions — that plug into any skill-capable agent: Claude Code, Claude.ai, OpenClaw, custom runtimes.
+Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions — that plug into any skill-capable agent: Claude Code, Claude.ai, Hermes, OpenClaw, custom runtimes.
 
 | Skill | Description |
 |-------|-------------|
 | [Unsiloed](./skills/unsiloed/) | Routes document reads through Unsiloed with confidence-scored output. Covers parse, extract, classify, split |
+| [Unsiloed HITL Extract](./skills/unsiloed-hitl-extract/) | Guided field extraction with human-in-the-loop review: the agent asks which fields to pull, flags low-confidence values, and boxes them on an annotated copy of the document |
 
 ## Repository layout
 
