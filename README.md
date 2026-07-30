@@ -34,6 +34,7 @@ Recipes built around a specific model, SDK, or agent framework.
 | Claude | [Tool Use](./claude/tool-use/) | Give Claude structured access to Unsiloed via Anthropic's tool-use API |
 | Claude | [Due-Diligence Agent](./due-diligence/) | Upload a deal PDF → Unsiloed parse + Claude (LangChain) analyst + E2B sandbox that verifies every figure → risk-flagged diligence memo you can chat with |
 | OpenAI | [Agentic CLI](./openai/cli/) | LangChain ReAct agent in a terminal REPL — plain-English document processing via Unsiloed |
+| Lovable | [Tearsheet Dashboard](./lovable/tearsheet/) | Turn a fund factsheet PDF into an interactive dashboard built with Lovable, where every KPI, chart, and table value links back to its exact spot on the source page via Unsiloed bounding boxes and confidence scores |
 
 ### Portable agent skills
 
@@ -50,6 +51,7 @@ Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions �
 cookbook/
 ├── claude/         # Claude-specific recipes (tool use, agents, etc.)
 ├── openai/         # OpenAI-specific recipes (CLI, agents, etc.)
+├── lovable/        # Lovable-built app recipes (Tearsheet dashboard)
 ├── skills/         # Portable SKILL.md files for skill-capable runtimes
 └── <provider>/     # Add new provider folders as siblings (gemini/, langchain/, ...)
 ```
