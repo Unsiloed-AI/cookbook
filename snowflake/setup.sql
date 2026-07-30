@@ -25,7 +25,7 @@ CREATE OR REPLACE NETWORK RULE unsiloed_api_network_rule
 -- 2. Store your Unsiloed API key as a secret (it never appears in UDF source or query text).
 CREATE OR REPLACE SECRET unsiloed_api_key
   TYPE = GENERIC_STRING
-  SECRET_STRING = 'usk_your_key_here';   -- replace with your key
+  SECRET_STRING = 'unsiloed_your_key_here';   -- replace with your key
 
 -- 3. Bind the network rule and secret into an external access integration.
 CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION unsiloed_access_integration
@@ -34,7 +34,15 @@ CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION unsiloed_access_integration
   ENABLED = TRUE;
 
 -- 4. The UDF: read a staged file, POST the bytes to /v2/extract, poll, return the result.
-CREATE OR REPLACE FUNCTION unsiloed_extract(file_url STRING, schema_json STRING, model STRING DEFAULT 'gamma')
+--    file_name is optional: /v2/extract picks its decoder from the file extension, and a
+--    scoped file URL is encrypted, so the name can't be recovered from it. The UDF sniffs
+--    the format from the leading bytes; pass file_name to override (Office files, or any
+--    format the sniffer doesn't know).
+CREATE OR REPLACE FUNCTION unsiloed_extract(
+    file_url STRING,
+    schema_json STRING,
+    file_name STRING DEFAULT '',
+    model STRING DEFAULT 'gamma')
   RETURNS VARIANT
   LANGUAGE PYTHON
   RUNTIME_VERSION = '3.12'
@@ -44,13 +52,37 @@ CREATE OR REPLACE FUNCTION unsiloed_extract(file_url STRING, schema_json STRING,
   SECRETS = ('cred' = unsiloed_api_key)
 AS
 $$
-import json, time
+import io, json, time, zipfile
 import _snowflake, requests
 from snowflake.snowpark.files import SnowflakeFile
 
 BASE = "https://prod.visionapi.unsiloed.ai"
+MAX_POLLS, POLL_SECONDS = 100, 3   # 5-minute ceiling; raise for long documents
 
-def run(file_url, schema_json, model):
+def sniff_name(data):
+    """Name the upload after its real format, since /v2/extract keys off the extension."""
+    if data[:4] == b"%PDF":
+        return "document.pdf"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "document.png"
+    if data[:3] == b"\xff\xd8\xff":
+        return "document.jpg"
+    if data[:4] in (b"II*\x00", b"MM\x00*"):
+        return "document.tiff"
+    if data[:2] == b"PK":                      # Office files are zip containers
+        try:
+            with zipfile.ZipFile(io.BytesIO(data)) as z:
+                names = z.namelist()
+        except zipfile.BadZipFile:
+            names = []
+        for prefix, ext in (("word/", "docx"), ("xl/", "xlsx"), ("ppt/", "pptx")):
+            if any(n.startswith(prefix) for n in names):
+                return "document." + ext
+    if data[:15].lstrip()[:1] == b"<":
+        return "document.html"
+    return "document.pdf"
+
+def run(file_url, schema_json, file_name, model):
     api_key = _snowflake.get_generic_secret_string("cred")
     headers = {"api-key": api_key}
 
@@ -58,11 +90,14 @@ def run(file_url, schema_json, model):
     with SnowflakeFile.open(file_url, "rb") as f:
         data = f.read()
 
+    # An explicit file_name wins; otherwise name it after the leading bytes.
+    name = file_name if file_name and "." in file_name else sniff_name(data)
+
     # Submit the extraction job.
     resp = requests.post(
         f"{BASE}/v2/extract",
         headers=headers,
-        files={"pdf_file": ("document.pdf", data, "application/pdf")},
+        files={"pdf_file": (name, data)},
         data={"schema_data": schema_json, "model": model or "gamma", "enable_citations": "true"},
         timeout=60,
     )
@@ -71,10 +106,15 @@ def run(file_url, schema_json, model):
     if not job_id:
         return {"_unsiloed_error": "no job_id returned", "response": resp.json()}
 
-    # Poll for up to two minutes.
-    for _ in range(40):
-        time.sleep(3)
-        status = requests.get(f"{BASE}/extract/{job_id}", headers=headers, timeout=30).json()
+    # Poll until the job reaches a terminal state, riding out transient network errors.
+    for _ in range(MAX_POLLS):
+        time.sleep(POLL_SECONDS)
+        try:
+            status = requests.get(f"{BASE}/extract/{job_id}", headers=headers, timeout=30).json()
+        except (requests.RequestException, ValueError):
+            continue
+        # "review" is terminal and carries a result: the job finished but was flagged
+        # for human review, so treat it like "completed".
         if status.get("status") in ("completed", "review"):
             return status.get("result", {})
         if status.get("status") == "failed":
