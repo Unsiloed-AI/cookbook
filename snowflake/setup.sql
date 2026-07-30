@@ -34,14 +34,13 @@ CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION unsiloed_access_integration
   ENABLED = TRUE;
 
 -- 4. The UDF: read a staged file, POST the bytes to /v2/extract, poll, return the result.
---    file_name is optional: /v2/extract picks its decoder from the file extension, and a
---    scoped file URL is encrypted, so the name can't be recovered from it. The UDF sniffs
---    the format from the leading bytes; pass file_name to override (Office files, or any
---    format the sniffer doesn't know).
+--    Pass file_name as well as the URL: /v2/extract picks its decoder from the file
+--    extension, and a scoped file URL is encrypted, so the name can't be recovered from
+--    it. You already have the name -- it's the second argument to BUILD_SCOPED_FILE_URL.
 CREATE OR REPLACE FUNCTION unsiloed_extract(
     file_url STRING,
+    file_name STRING,
     schema_json STRING,
-    file_name STRING DEFAULT '',
     model STRING DEFAULT 'gamma')
   RETURNS VARIANT
   LANGUAGE PYTHON
@@ -52,52 +51,31 @@ CREATE OR REPLACE FUNCTION unsiloed_extract(
   SECRETS = ('cred' = unsiloed_api_key)
 AS
 $$
-import io, json, time, zipfile
+import json, time
 import _snowflake, requests
 from snowflake.snowpark.files import SnowflakeFile
 
 BASE = "https://prod.visionapi.unsiloed.ai"
 MAX_POLLS, POLL_SECONDS = 100, 3   # 5-minute ceiling; raise for long documents
 
-def sniff_name(data):
-    """Name the upload after its real format, since /v2/extract keys off the extension."""
-    if data[:4] == b"%PDF":
-        return "document.pdf"
-    if data[:8] == b"\x89PNG\r\n\x1a\n":
-        return "document.png"
-    if data[:3] == b"\xff\xd8\xff":
-        return "document.jpg"
-    if data[:4] in (b"II*\x00", b"MM\x00*"):
-        return "document.tiff"
-    if data[:2] == b"PK":                      # Office files are zip containers
-        try:
-            with zipfile.ZipFile(io.BytesIO(data)) as z:
-                names = z.namelist()
-        except zipfile.BadZipFile:
-            names = []
-        for prefix, ext in (("word/", "docx"), ("xl/", "xlsx"), ("ppt/", "pptx")):
-            if any(n.startswith(prefix) for n in names):
-                return "document." + ext
-    if data[:15].lstrip()[:1] == b"<":
-        return "document.html"
-    return "document.pdf"
-
-def run(file_url, schema_json, file_name, model):
+def run(file_url, file_name, schema_json, model):
     api_key = _snowflake.get_generic_secret_string("cred")
     headers = {"api-key": api_key}
+
+    # The extension decides how the file is decoded, so insist on having one.
+    if not file_name or "." not in file_name:
+        return {"_unsiloed_error": "file_name needs an extension, e.g. 'invoice.pdf'",
+                "file_name": file_name}
 
     # Read the staged file through the caller-scoped URL.
     with SnowflakeFile.open(file_url, "rb") as f:
         data = f.read()
 
-    # An explicit file_name wins; otherwise name it after the leading bytes.
-    name = file_name if file_name and "." in file_name else sniff_name(data)
-
     # Submit the extraction job.
     resp = requests.post(
         f"{BASE}/v2/extract",
         headers=headers,
-        files={"pdf_file": (name, data)},
+        files={"pdf_file": (file_name, data)},
         data={"schema_data": schema_json, "model": model or "gamma", "enable_citations": "true"},
         timeout=60,
     )
