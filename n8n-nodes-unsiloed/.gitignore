@@ -1,0 +1,6 @@
+node_modules/
+*.log
+*.tgz
+
+# NOTE: dist/ is intentionally committed so the node installs straight from GitHub
+# (drop it into ~/.n8n/custom) without requiring a build step on the user's machine.

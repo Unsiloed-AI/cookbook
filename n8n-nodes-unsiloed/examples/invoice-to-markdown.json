@@ -1,0 +1,76 @@
+{
+  "id": "UnsiloedInvoiceToMarkdown",
+  "name": "Unsiloed: invoice to Markdown",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "22222222-2222-4222-8222-222222222221",
+      "name": "Execute workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/invoice.pdf",
+        "options": {}
+      },
+      "id": "22222222-2222-4222-8222-222222222222",
+      "name": "Read invoice.pdf",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "operation": "parse",
+        "binaryPropertyName": "data",
+        "forceOcr": true,
+        "output": "markdown"
+      },
+      "id": "22222222-2222-4222-8222-222222222223",
+      "name": "Unsiloed",
+      "type": "CUSTOM.unsiloed",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute workflow": {
+      "main": [
+        [
+          {
+            "node": "Read invoice.pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read invoice.pdf": {
+      "main": [
+        [
+          {
+            "node": "Unsiloed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
