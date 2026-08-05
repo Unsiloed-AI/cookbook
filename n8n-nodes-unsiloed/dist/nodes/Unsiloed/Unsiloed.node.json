@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.unsiloed",
+	"node": "n8n-nodes-unsiloed.unsiloed",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Data & Storage", "Utility"],

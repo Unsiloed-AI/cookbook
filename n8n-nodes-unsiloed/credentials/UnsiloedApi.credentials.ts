@@ -30,7 +30,10 @@ export class UnsiloedApi implements ICredentialType {
 		},
 	];
 
-	// Sends the api-key header on n8n's built-in "Test" and on generic HTTP calls.
+	// Sends the api-key header on generic HTTP calls. The "Test" button is wired up
+	// separately, by the node's `unsiloedApiTest` method (see Unsiloed.node.ts) —
+	// Unsiloed has no endpoint that returns 2xx for an authenticated GET, which is
+	// what a declarative `test` block would need.
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
