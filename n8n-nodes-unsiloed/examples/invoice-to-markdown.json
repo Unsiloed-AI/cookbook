@@ -37,7 +37,7 @@
       },
       "id": "22222222-2222-4222-8222-222222222223",
       "name": "Unsiloed",
-      "type": "CUSTOM.unsiloed",
+      "type": "n8n-nodes-unsiloed.unsiloed",
       "typeVersion": 1,
       "position": [
         520,

@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-unsiloed",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "Unsiloed AI — parse and OCR documents (PDF, scans, images) into clean Markdown inside n8n",
   "keywords": [
     "n8n-community-node-package",
@@ -50,5 +50,10 @@
   },
   "peerDependencies": {
     "n8n-workflow": "*"
+  },
+  "peerDependenciesMeta": {
+    "n8n-workflow": {
+      "optional": true
+    }
   }
 }

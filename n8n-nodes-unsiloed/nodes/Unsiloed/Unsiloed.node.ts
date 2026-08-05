@@ -1,6 +1,9 @@
 import {
 	IExecuteFunctions,
+	ICredentialsDecrypted,
+	ICredentialTestFunctions,
 	IDataObject,
+	INodeCredentialTestResult,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
@@ -33,6 +36,7 @@ export class Unsiloed implements INodeType {
 			{
 				name: 'unsiloedApi',
 				required: true,
+				testedBy: 'unsiloedApiTest',
 			},
 		],
 		properties: [
@@ -109,6 +113,61 @@ export class Unsiloed implements INodeType {
 		],
 	};
 
+	methods = {
+		credentialTest: {
+			// Backs the credential's "Test" button. Unsiloed exposes no endpoint that
+			// returns 2xx for an authenticated read, so we POST to /parse with no file
+			// and read the rejection: 400/422 means the key authenticated and the route
+			// exists, 401/403 means the key is bad, and anything else (404 from a path
+			// typo, 405 from an unrelated host) means the Base URL is wrong.
+			async unsiloedApiTest(
+				this: ICredentialTestFunctions,
+				credential: ICredentialsDecrypted,
+			): Promise<INodeCredentialTestResult> {
+				const data = (credential.data ?? {}) as IDataObject;
+				const apiKey = (data.apiKey as string) || '';
+				const baseUrl = ((data.baseUrl as string) || 'https://prod.visionapi.unsiloed.ai').replace(
+					/\/+$/,
+					'',
+				);
+
+				if (!apiKey) {
+					return { status: 'Error', message: 'No API key set.' };
+				}
+
+				try {
+					const response = await this.helpers.request({
+						method: 'POST',
+						uri: `${baseUrl}/parse`,
+						headers: { 'api-key': apiKey },
+						json: true,
+						simple: false,
+						resolveWithFullResponse: true,
+					});
+
+					const status = response.statusCode as number;
+
+					if (status === 401 || status === 403) {
+						return { status: 'Error', message: 'Unsiloed rejected this API key.' };
+					}
+					// The key authenticated and /parse rejected the empty request body.
+					if (status === 400 || status === 422) {
+						return { status: 'OK', message: 'Connection successful!' };
+					}
+					return {
+						status: 'Error',
+						message: `Unexpected response from Unsiloed (HTTP ${status}). Check the Base URL.`,
+					};
+				} catch (error) {
+					return {
+						status: 'Error',
+						message: `Could not reach Unsiloed at ${baseUrl}: ${(error as Error).message}`,
+					};
+				}
+			},
+		},
+	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
@@ -117,14 +176,26 @@ export class Unsiloed implements INodeType {
 		const apiKey = credentials.apiKey as string;
 		const baseUrl = ((credentials.baseUrl as string) || 'https://prod.visionapi.unsiloed.ai').replace(/\/+$/, '');
 
+		// Every Unsiloed call goes through here. A raw failure from helpers.request is an
+		// AxiosError carrying the request options — including the api-key header — and n8n
+		// persists thrown errors into the execution record, so it must never escape as-is.
+		// NodeApiError keeps only message/description/httpCode/level/context.
+		const request = async (options: IDataObject): Promise<IDataObject> => {
+			try {
+				return (await this.helpers.request(options)) as IDataObject;
+			} catch (error) {
+				throw new NodeApiError(this.getNode(), error as JsonObject);
+			}
+		};
+
 		const poll = async (path: string): Promise<IDataObject> => {
 			for (let attempt = 0; attempt < 90; attempt++) {
-				const job = (await this.helpers.request({
+				const job = await request({
 					method: 'GET',
 					uri: `${baseUrl}${path}`,
 					headers: { 'api-key': apiKey },
 					json: true,
-				})) as IDataObject;
+				});
 				const status = job.status as string;
 				if (DONE.includes(status)) return job;
 				if (FAILED.includes(status)) {
@@ -161,13 +232,13 @@ export class Unsiloed implements INodeType {
 					};
 					if (forceOcr) formData.ocr_strategy = 'force_ocr';
 
-					const submit = (await this.helpers.request({
+					const submit = await request({
 						method: 'POST',
 						uri: `${baseUrl}/parse`,
 						headers: { 'api-key': apiKey },
 						formData,
 						json: true,
-					})) as IDataObject;
+					});
 
 					const result = await poll(`/parse/${submit.job_id}`);
 
@@ -196,7 +267,7 @@ export class Unsiloed implements INodeType {
 					const schemaRaw = this.getNodeParameter('schema', i) as string | IDataObject;
 					const schema = typeof schemaRaw === 'string' ? schemaRaw : JSON.stringify(schemaRaw);
 
-					const submit = (await this.helpers.request({
+					const submit = await request({
 						method: 'POST',
 						uri: `${baseUrl}/v2/extract`,
 						headers: { 'api-key': apiKey },
@@ -209,7 +280,7 @@ export class Unsiloed implements INodeType {
 							enable_citations: 'true',
 						},
 						json: true,
-					})) as IDataObject;
+					});
 
 					const job = await poll(`/extract/${submit.job_id}`);
 					const result = (job.result as IDataObject) ?? job;

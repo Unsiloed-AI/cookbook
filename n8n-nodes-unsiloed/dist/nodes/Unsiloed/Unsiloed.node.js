@@ -24,6 +24,7 @@ class Unsiloed {
                 {
                     name: 'unsiloedApi',
                     required: true,
+                    testedBy: 'unsiloedApiTest',
                 },
             ],
             properties: [
@@ -96,6 +97,51 @@ class Unsiloed {
                 },
             ],
         };
+        this.methods = {
+            credentialTest: {
+                // Backs the credential's "Test" button. Unsiloed exposes no endpoint that
+                // returns 2xx for an authenticated read, so we POST to /parse with no file
+                // and read the rejection: 400/422 means the key authenticated and the route
+                // exists, 401/403 means the key is bad, and anything else (404 from a path
+                // typo, 405 from an unrelated host) means the Base URL is wrong.
+                async unsiloedApiTest(credential) {
+                    const data = (credential.data ?? {});
+                    const apiKey = data.apiKey || '';
+                    const baseUrl = (data.baseUrl || 'https://prod.visionapi.unsiloed.ai').replace(/\/+$/, '');
+                    if (!apiKey) {
+                        return { status: 'Error', message: 'No API key set.' };
+                    }
+                    try {
+                        const response = await this.helpers.request({
+                            method: 'POST',
+                            uri: `${baseUrl}/parse`,
+                            headers: { 'api-key': apiKey },
+                            json: true,
+                            simple: false,
+                            resolveWithFullResponse: true,
+                        });
+                        const status = response.statusCode;
+                        if (status === 401 || status === 403) {
+                            return { status: 'Error', message: 'Unsiloed rejected this API key.' };
+                        }
+                        // The key authenticated and /parse rejected the empty request body.
+                        if (status === 400 || status === 422) {
+                            return { status: 'OK', message: 'Connection successful!' };
+                        }
+                        return {
+                            status: 'Error',
+                            message: `Unexpected response from Unsiloed (HTTP ${status}). Check the Base URL.`,
+                        };
+                    }
+                    catch (error) {
+                        return {
+                            status: 'Error',
+                            message: `Could not reach Unsiloed at ${baseUrl}: ${error.message}`,
+                        };
+                    }
+                },
+            },
+        };
     }
     async execute() {
         const items = this.getInputData();
@@ -103,14 +149,26 @@ class Unsiloed {
         const credentials = await this.getCredentials('unsiloedApi');
         const apiKey = credentials.apiKey;
         const baseUrl = (credentials.baseUrl || 'https://prod.visionapi.unsiloed.ai').replace(/\/+$/, '');
+        // Every Unsiloed call goes through here. A raw failure from helpers.request is an
+        // AxiosError carrying the request options — including the api-key header — and n8n
+        // persists thrown errors into the execution record, so it must never escape as-is.
+        // NodeApiError keeps only message/description/httpCode/level/context.
+        const request = async (options) => {
+            try {
+                return (await this.helpers.request(options));
+            }
+            catch (error) {
+                throw new n8n_workflow_1.NodeApiError(this.getNode(), error);
+            }
+        };
         const poll = async (path) => {
             for (let attempt = 0; attempt < 90; attempt++) {
-                const job = (await this.helpers.request({
+                const job = await request({
                     method: 'GET',
                     uri: `${baseUrl}${path}`,
                     headers: { 'api-key': apiKey },
                     json: true,
-                }));
+                });
                 const status = job.status;
                 if (DONE.includes(status))
                     return job;
@@ -144,13 +202,13 @@ class Unsiloed {
                     };
                     if (forceOcr)
                         formData.ocr_strategy = 'force_ocr';
-                    const submit = (await this.helpers.request({
+                    const submit = await request({
                         method: 'POST',
                         uri: `${baseUrl}/parse`,
                         headers: { 'api-key': apiKey },
                         formData,
                         json: true,
-                    }));
+                    });
                     const result = await poll(`/parse/${submit.job_id}`);
                     if (output === 'json') {
                         returnData.push({ json: result, pairedItem: { item: i } });
@@ -179,7 +237,7 @@ class Unsiloed {
                     // operation === 'extract'
                     const schemaRaw = this.getNodeParameter('schema', i);
                     const schema = typeof schemaRaw === 'string' ? schemaRaw : JSON.stringify(schemaRaw);
-                    const submit = (await this.helpers.request({
+                    const submit = await request({
                         method: 'POST',
                         uri: `${baseUrl}/v2/extract`,
                         headers: { 'api-key': apiKey },
@@ -192,7 +250,7 @@ class Unsiloed {
                             enable_citations: 'true',
                         },
                         json: true,
-                    }));
+                    });
                     const job = await poll(`/extract/${submit.job_id}`);
                     const result = job.result ?? job;
                     returnData.push({ json: result, pairedItem: { item: i } });
