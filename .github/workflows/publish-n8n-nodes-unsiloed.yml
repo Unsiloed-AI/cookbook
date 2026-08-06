@@ -1,0 +1,76 @@
+name: Publish n8n-nodes-unsiloed
+
+# n8n requires verified community nodes to be published from a GitHub action with an
+# npm provenance statement — it won't verify a node published from a local machine.
+# Auth is npm trusted publishing (OIDC), so there is no NPM_TOKEN secret to manage:
+# the package must list this repo and this workflow filename as its trusted publisher
+# at npmjs.com -> package -> Settings -> Trusted Publisher.
+#
+# Provenance is generated automatically for a public package published this way, so
+# no --provenance flag is needed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run every step but skip the actual publish'
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'n8n-nodes-unsiloed-v*'
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: n8n-nodes-unsiloed
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Node 22 ships npm 10; trusted publishing needs npm >= 11.5.1.
+      - name: Use an npm that supports trusted publishing
+        run: |
+          npm install -g npm@latest
+          npm --version
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check this version isn't already on npm
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Publishing $NAME@$VERSION"
+          if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+            echo "::error::$NAME@$VERSION is already published. Bump the version in n8n-nodes-unsiloed/package.json."
+            exit 1
+          fi
+
+      - name: Publish to npm
+        if: ${{ inputs.dry_run != true }}
+        run: npm publish --access public
+
+      - name: Publish (dry run)
+        if: ${{ inputs.dry_run == true }}
+        run: npm publish --access public --dry-run
+
+      - name: Verify provenance
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          npx --yes @n8n/scan-community-package "$NAME"
