@@ -1,16 +1,14 @@
 import {
-	IExecuteFunctions,
-	ICredentialsDecrypted,
-	ICredentialTestFunctions,
 	IDataObject,
-	INodeCredentialTestResult,
+	IExecuteFunctions,
+	IHttpRequestOptions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
 	JsonObject,
 	NodeConnectionType,
-	NodeOperationError,
 	NodeApiError,
+	NodeOperationError,
 	sleep,
 } from 'n8n-workflow';
 
@@ -22,9 +20,12 @@ export class Unsiloed implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Unsiloed',
 		name: 'unsiloed',
-		icon: 'file:unsiloed.png',
+		// One file for both themes: the mark sits on its own coloured plate, so it
+		// reads on light and dark alike. n8n warns about this but does not reject it.
+		icon: 'file:unsiloed.svg',
 		group: ['transform'],
 		version: 1,
+		usableAsTool: true,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Parse and OCR documents into clean Markdown, or extract structured fields, with Unsiloed AI',
 		defaults: {
@@ -36,7 +37,6 @@ export class Unsiloed implements INodeType {
 			{
 				name: 'unsiloedApi',
 				required: true,
-				testedBy: 'unsiloedApiTest',
 			},
 		],
 		properties: [
@@ -58,7 +58,7 @@ export class Unsiloed implements INodeType {
 					{
 						name: 'Parse',
 						value: 'parse',
-						action: 'Parse a document into clean Markdown',
+						action: 'Parse a document into clean markdown',
 						description: 'OCR the document and return layout-aware Markdown (tables, headings, text)',
 					},
 					{
@@ -113,61 +113,6 @@ export class Unsiloed implements INodeType {
 		],
 	};
 
-	methods = {
-		credentialTest: {
-			// Backs the credential's "Test" button. Unsiloed exposes no endpoint that
-			// returns 2xx for an authenticated read, so we POST to /parse with no file
-			// and read the rejection: 400/422 means the key authenticated and the route
-			// exists, 401/403 means the key is bad, and anything else (404 from a path
-			// typo, 405 from an unrelated host) means the Base URL is wrong.
-			async unsiloedApiTest(
-				this: ICredentialTestFunctions,
-				credential: ICredentialsDecrypted,
-			): Promise<INodeCredentialTestResult> {
-				const data = (credential.data ?? {}) as IDataObject;
-				const apiKey = (data.apiKey as string) || '';
-				const baseUrl = ((data.baseUrl as string) || 'https://prod.visionapi.unsiloed.ai').replace(
-					/\/+$/,
-					'',
-				);
-
-				if (!apiKey) {
-					return { status: 'Error', message: 'No API key set.' };
-				}
-
-				try {
-					const response = await this.helpers.request({
-						method: 'POST',
-						uri: `${baseUrl}/parse`,
-						headers: { 'api-key': apiKey },
-						json: true,
-						simple: false,
-						resolveWithFullResponse: true,
-					});
-
-					const status = response.statusCode as number;
-
-					if (status === 401 || status === 403) {
-						return { status: 'Error', message: 'Unsiloed rejected this API key.' };
-					}
-					// The key authenticated and /parse rejected the empty request body.
-					if (status === 400 || status === 422) {
-						return { status: 'OK', message: 'Connection successful!' };
-					}
-					return {
-						status: 'Error',
-						message: `Unexpected response from Unsiloed (HTTP ${status}). Check the Base URL.`,
-					};
-				} catch (error) {
-					return {
-						status: 'Error',
-						message: `Could not reach Unsiloed at ${baseUrl}: ${(error as Error).message}`,
-					};
-				}
-			},
-		},
-	};
-
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
@@ -176,23 +121,34 @@ export class Unsiloed implements INodeType {
 		const apiKey = credentials.apiKey as string;
 		const baseUrl = ((credentials.baseUrl as string) || 'https://prod.visionapi.unsiloed.ai').replace(/\/+$/, '');
 
-		// Every Unsiloed call goes through here. A raw failure from helpers.request is an
-		// AxiosError carrying the request options — including the api-key header — and n8n
-		// persists thrown errors into the execution record, so it must never escape as-is.
-		// NodeApiError keeps only message/description/httpCode/level/context.
-		const request = async (options: IDataObject): Promise<IDataObject> => {
+		// Every Unsiloed call goes through here. A raw transport failure carries the request
+		// options — including the api-key header — and n8n persists thrown errors into the
+		// execution record, so it must never escape as-is. NodeApiError keeps only
+		// message/description/httpCode/level/context.
+		const request = async (options: IHttpRequestOptions): Promise<IDataObject> => {
 			try {
-				return (await this.helpers.request(options)) as IDataObject;
+				return (await this.helpers.httpRequest(options)) as IDataObject;
 			} catch (error) {
 				throw new NodeApiError(this.getNode(), error as JsonObject);
 			}
+		};
+
+		// Multipart upload: a FormData body lets httpRequest set the boundary itself.
+		const fileForm = (fields: IDataObject, fileField: string, buffer: Buffer,
+			fileName: string, contentType: string): FormData => {
+			const form = new FormData();
+			form.append(fileField, new Blob([new Uint8Array(buffer)], { type: contentType }), fileName);
+			for (const [key, value] of Object.entries(fields)) {
+				form.append(key, value as string);
+			}
+			return form;
 		};
 
 		const poll = async (path: string): Promise<IDataObject> => {
 			for (let attempt = 0; attempt < 90; attempt++) {
 				const job = await request({
 					method: 'GET',
-					uri: `${baseUrl}${path}`,
+					url: `${baseUrl}${path}`,
 					headers: { 'api-key': apiKey },
 					json: true,
 				});
@@ -223,21 +179,19 @@ export class Unsiloed implements INodeType {
 					const forceOcr = this.getNodeParameter('forceOcr', i) as boolean;
 					const output = this.getNodeParameter('output', i) as string;
 
-					const formData: IDataObject = {
-						file: { value: buffer, options: { filename: fileName, contentType } },
+					const fields: IDataObject = {
 						layout_analysis: 'smart_layout_detection',
 						ocr_engine: 'UnsiloedBeta',
 						// Render logos/figures as plain markdown instead of a VLM "image description" essay.
 						segment_analysis: JSON.stringify({ Picture: { markdown: 'Auto' } }),
 					};
-					if (forceOcr) formData.ocr_strategy = 'force_ocr';
+					if (forceOcr) fields.ocr_strategy = 'force_ocr';
 
 					const submit = await request({
 						method: 'POST',
-						uri: `${baseUrl}/parse`,
+						url: `${baseUrl}/parse`,
 						headers: { 'api-key': apiKey },
-						formData,
-						json: true,
+						body: fileForm(fields, 'file', buffer, fileName, contentType),
 					});
 
 					const result = await poll(`/parse/${submit.job_id}`);
@@ -269,17 +223,21 @@ export class Unsiloed implements INodeType {
 
 					const submit = await request({
 						method: 'POST',
-						uri: `${baseUrl}/v2/extract`,
+						url: `${baseUrl}/v2/extract`,
 						headers: { 'api-key': apiKey },
-						formData: {
-							pdf_file: { value: buffer, options: { filename: fileName, contentType } },
-							schema_data: schema,
-							model: 'gamma',
-							// Run the grounding pass so every field returns real confidence scores
-							// plus a citation (page + bounding box).
-							enable_citations: 'true',
-						},
-						json: true,
+						body: fileForm(
+							{
+								schema_data: schema,
+								model: 'gamma',
+								// Run the grounding pass so every field returns real confidence scores
+								// plus a citation (page + bounding box).
+								enable_citations: 'true',
+							},
+							'pdf_file',
+							buffer,
+							fileName,
+							contentType,
+						),
 					});
 
 					const job = await poll(`/extract/${submit.job_id}`);
@@ -291,7 +249,11 @@ export class Unsiloed implements INodeType {
 					returnData.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
 					continue;
 				}
-				throw error;
+				// Already-wrapped n8n errors carry their own message and context; anything
+				// else is wrapped so no raw transport error reaches the execution record.
+				throw error instanceof NodeApiError || error instanceof NodeOperationError
+					? error
+					: new NodeApiError(this.getNode(), error as JsonObject);
 			}
 		}
 

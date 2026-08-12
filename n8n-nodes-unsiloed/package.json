@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-unsiloed",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Unsiloed AI \u2014 parse and OCR documents (PDF, scans, images) into clean Markdown inside n8n",
   "keywords": [
     "n8n-community-node-package",
@@ -13,7 +13,8 @@
   "license": "MIT",
   "homepage": "https://unsiloed.ai",
   "author": {
-    "name": "Unsiloed AI"
+    "name": "Unsiloed AI",
+    "email": "opensource@unsiloed.ai"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,7 @@
   ],
   "scripts": {
     "build": "rm -rf dist && tsc && npm run copy:icons",
-    "copy:icons": "mkdir -p dist/nodes/Unsiloed && cp nodes/Unsiloed/*.png nodes/Unsiloed/*.json dist/nodes/Unsiloed/",
+    "copy:icons": "mkdir -p dist/nodes/Unsiloed && cp nodes/Unsiloed/*.svg nodes/Unsiloed/*.json dist/nodes/Unsiloed/",
     "dev": "tsc --watch"
   },
   "n8n": {

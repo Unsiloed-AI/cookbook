@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Unsiloed">
+  <defs>
+    <linearGradient id="unsiloedPlate" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7D39EC"/>
+      <stop offset="1" stop-color="#9133EA"/>
+    </linearGradient>
+    <clipPath id="unsiloedClip">
+      <rect width="512" height="512" rx="111"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#unsiloedClip)">
+    <rect width="512" height="512" fill="url(#unsiloedPlate)"/>
+    <!-- Two nested U arcs sharing a centre at (247, 307), plus a short inner stem.
+         The left arms run up past the plate edge and are sliced by the diagonal below. -->
+    <g fill="none" stroke="#fff" stroke-width="26.4" stroke-linecap="round">
+      <path d="M 158.9,40 L 158.9,307 A 88.1,88.1 0 0 0 335.1,307 L 335.1,286"/>
+      <path d="M 203.65,90 L 203.65,307 A 43.35,43.35 0 0 0 290.35,307 L 290.35,266"/>
+      <path d="M 248,140 L 248,307"/>
+    </g>
+    <!-- Diagonal slice across the three left arms: the line y = x - 44.5, painted
+         in the plate gradient so the arms end on a 45-degree cut. -->
+    <polygon points="44.5,0 270,0 270,225.5" fill="url(#unsiloedPlate)"/>
+    <!-- Four-point sparkle. The rounded stroke blunts the tips. -->
+    <path d="M 319.25,164.5 Q 321.75,199.25 356.5,201.75 Q 321.75,204.25 319.25,239 Q 316.75,204.25 282,201.75 Q 316.75,199.25 319.25,164.5 Z"
+          fill="#fff" stroke="#fff" stroke-width="16.5" stroke-linejoin="round"/>
+  </g>
+</svg>
