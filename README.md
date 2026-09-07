@@ -33,6 +33,7 @@ Recipes built around a specific model, SDK, or agent framework.
 |----------|--------|-------------|
 | Claude | [Tool Use](./claude/tool-use/) | Give Claude structured access to Unsiloed via Anthropic's tool-use API |
 | Claude | [Due-Diligence Agent](./due-diligence/) | Upload a deal PDF → Unsiloed parse + Claude (LangChain) analyst + E2B sandbox that verifies every figure → risk-flagged diligence memo you can chat with |
+| Gemini | [Function Calling](./gemini/function-calling/) | Gemini function calling over Unsiloed, with per-field confidence scores and citation boxes drawn on the source document |
 | OpenAI | [Agentic CLI](./openai/cli/) | LangChain ReAct agent in a terminal REPL — plain-English document processing via Unsiloed |
 | n8n | [Unsiloed node](./n8n-nodes-unsiloed/) | Community node to parse and extract documents with Unsiloed inside n8n workflows |
 | Snowflake | [SQL UDF](./snowflake/) | Python UDF that extracts documents from a Snowflake stage entirely in SQL, returning fields with confidence scores and citations |
