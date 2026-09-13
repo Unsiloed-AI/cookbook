@@ -1,0 +1,14 @@
+{
+  "doc_type": "id_card",
+  "fields": {
+    "full_name": "DEVRAJ SINGH KHURANA",
+    "document_number": "T3872757",
+    "date_of_birth": "1993-11-18",
+    "nationality": "Indian",
+    "sex": "M",
+    "place_of_birth": "Jalandhar, India",
+    "issue_date": "2024-11-18",
+    "expiry_date": "2034-11-18",
+    "issuing_authority": "National Registry Office"
+  }
+}

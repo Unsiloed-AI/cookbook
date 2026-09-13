@@ -1,0 +1,7 @@
+# Explicit binary marking. Without this, Git's CRLF autoconversion on Windows checkouts
+# can mangle PDF/image bytes on future clones even though `git add` itself detected these
+# as binary and skipped conversion this time.
+*.pdf -text
+*.jpg -text
+*.jpeg -text
+*.png -text

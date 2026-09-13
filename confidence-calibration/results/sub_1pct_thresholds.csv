@@ -1,0 +1,5 @@
+tier,threshold,coverage,n_accepted,error_ci_high,demonstrated,note
+t0,0.5,0.9897959183673469,291,0.013029368989993271,False,"observed <=1%, but interval does not exclude 1%"
+t1,0.5,0.9897959183673469,291,0.013029368989993271,False,"observed <=1%, but interval does not exclude 1%"
+t2,,,0,,False,no threshold reached <=1% observed error with n>=30
+t3,,,0,,False,no threshold reached <=1% observed error with n>=30

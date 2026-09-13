@@ -1,0 +1,36 @@
+{
+  "doc_type": "invoice",
+  "fields": {
+    "invoice_number": "INV-2026-2412",
+    "invoice_date": "2026-07-14",
+    "due_date": "2026-07-28",
+    "vendor_name": "Kestrel Facilities Group",
+    "vendor_tax_id": "GB 556 903 217",
+    "bill_to_name": "Pellham & Rowe Associates",
+    "currency": "USD",
+    "subtotal": "25584.87",
+    "tax_rate": "7.5",
+    "tax_amount": "1918.87",
+    "total_due": "27503.74",
+    "line_items": [
+      {
+        "description": "Temperature-controlled container hire",
+        "quantity": "3",
+        "unit_price": "758.86",
+        "amount": "2276.58"
+      },
+      {
+        "description": "Digital proofing and colour matching",
+        "quantity": "14",
+        "unit_price": "503.46",
+        "amount": "7048.44"
+      },
+      {
+        "description": "Customs documentation processing",
+        "quantity": "23",
+        "unit_price": "706.95",
+        "amount": "16259.85"
+      }
+    ]
+  }
+}

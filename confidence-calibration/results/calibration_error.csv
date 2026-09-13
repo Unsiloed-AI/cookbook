@@ -1,0 +1,5 @@
+tier,score,ece,signed_error,direction,n
+t0,grounding_score,0.015289115646258553,-0.015289115646258553,underconfident,294
+t1,grounding_score,0.01829931972789122,-0.01829931972789122,underconfident,294
+t2,grounding_score,0.26071428571428573,-0.26071428571428573,underconfident,294
+t3,grounding_score,0.10224489795918368,0.07346938775510205,overconfident,294

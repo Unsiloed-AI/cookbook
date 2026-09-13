@@ -1,0 +1,26 @@
+{
+  "doc_type": "receipt",
+  "source": "naver-clova-ix/cord-v2 [test] row 2",
+  "licence": "CC-BY-4.0, NAVER CLOVA AI Research",
+  "image_size": {
+    "width": 864,
+    "height": 1296
+  },
+  "fields": {
+    "subtotal_price": "28,000",
+    "total_price": "28,000",
+    "cash_price": "100,000",
+    "change_price": "72,000",
+    "line_items": [
+      {
+        "name": "JASMINE MT ( L )",
+        "quantity": "1",
+        "price": "24,000"
+      },
+      {
+        "name": "COCONUT JELLY ( L )",
+        "price": "4,000"
+      }
+    ]
+  }
+}

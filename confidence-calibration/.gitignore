@@ -1,0 +1,27 @@
+# The 12 generated documents/*.pdf + *.truth.json ARE committed (87KB total,
+# deterministic from corpus/generate.py) so the recipe has visible content without
+# running anything first.
+
+# Downloaded CORD receipts (92 files, ~15MB) are regenerated via corpus/cord.py.
+# samples/cord/ holds three committed examples instead.
+documents/cord/*.jpg
+documents/cord/*.truth.json
+
+# Degraded tiers are derived from the committed PDFs via corpus/degrade.py.
+documents/degraded/
+
+# Cached extraction responses (140 files, several MB) are regenerated via
+# calibration/run.py. results/figures/ and results/*.csv ARE committed — they are
+# the actual findings, small, and let a reviewer see the numbers without spending
+# API quota or running anything.
+results/extractions/
+
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.ruff_cache/
+.vscode/
+.idea/
+*.swp
+*.log

@@ -37,6 +37,14 @@ Recipes built around a specific model, SDK, or agent framework.
 | n8n | [Unsiloed node](./n8n-nodes-unsiloed/) | Community node to parse and extract documents with Unsiloed inside n8n workflows |
 | Snowflake | [SQL UDF](./snowflake/) | Python UDF that extracts documents from a Snowflake stage entirely in SQL, returning fields with confidence scores and citations |
 
+### General guides
+
+Not tied to one provider — SDK-agnostic questions about the API itself.
+
+| Guide | Description |
+|-------|-------------|
+| [Confidence Calibration](./confidence-calibration/) | Measures whether confidence scores and thresholds hold up as document quality degrades: a synthetic corpus with exact ground truth, degraded through four tiers from clean PDF to photographed, plus 92 real receipts for validation |
+
 ### Portable agent skills
 
 Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions — that plug into any skill-capable agent: Claude Code, Claude.ai, Hermes, OpenClaw, custom runtimes.

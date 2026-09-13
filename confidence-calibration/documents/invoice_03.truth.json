@@ -1,0 +1,42 @@
+{
+  "doc_type": "invoice",
+  "fields": {
+    "invoice_number": "INV-2026-2789",
+    "invoice_date": "2026-04-17",
+    "due_date": "2026-05-17",
+    "vendor_name": "Halvorsen Instruments AS",
+    "vendor_tax_id": "NO 983 472 118",
+    "bill_to_name": "Vantor Systems GmbH",
+    "currency": "GBP",
+    "subtotal": "27282.77",
+    "tax_rate": "5",
+    "tax_amount": "1364.14",
+    "total_due": "28646.91",
+    "line_items": [
+      {
+        "description": "Digital proofing and colour matching",
+        "quantity": "23",
+        "unit_price": "693.29",
+        "amount": "15945.67"
+      },
+      {
+        "description": "Freight forwarding, Rotterdam to Felixstowe",
+        "quantity": "14",
+        "unit_price": "443.97",
+        "amount": "6215.58"
+      },
+      {
+        "description": "Site cleaning, out of hours",
+        "quantity": "5",
+        "unit_price": "148.64",
+        "amount": "743.20"
+      },
+      {
+        "description": "Customs documentation processing",
+        "quantity": "6",
+        "unit_price": "729.72",
+        "amount": "4378.32"
+      }
+    ]
+  }
+}

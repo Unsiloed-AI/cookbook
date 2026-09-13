@@ -1,0 +1,51 @@
+{
+  "doc_type": "statement",
+  "fields": {
+    "bank_name": "First Meridian Bank",
+    "account_holder": "Vantor Systems GmbH",
+    "account_number": "18-61128-349",
+    "currency": "USD",
+    "statement_period_start": "2026-07-01",
+    "statement_period_end": "2026-07-31",
+    "opening_balance": "84429.72",
+    "closing_balance": "72673.30",
+    "transactions": [
+      {
+        "date": "2026-07-11",
+        "description": "DIRECT DEBIT BRITISH GAS",
+        "amount": "-262.53",
+        "balance": "84167.19"
+      },
+      {
+        "date": "2026-07-18",
+        "description": "FEE MONTHLY ACCOUNT CHARGE",
+        "amount": "-42.88",
+        "balance": "84124.31"
+      },
+      {
+        "date": "2026-07-26",
+        "description": "STANDING ORDER OFFICE RENT",
+        "amount": "-1815.22",
+        "balance": "82309.09"
+      },
+      {
+        "date": "2026-07-27",
+        "description": "CHEQUE DEPOSIT 004187",
+        "amount": "3841.01",
+        "balance": "86150.10"
+      },
+      {
+        "date": "2026-07-29",
+        "description": "CARD PURCHASE 4412 UBER",
+        "amount": "-79.52",
+        "balance": "86070.58"
+      },
+      {
+        "date": "2026-07-29",
+        "description": "SALARY PAYMENT RUN 08",
+        "amount": "-13397.28",
+        "balance": "72673.30"
+      }
+    ]
+  }
+}

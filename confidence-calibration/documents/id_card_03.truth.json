@@ -1,0 +1,14 @@
+{
+  "doc_type": "id_card",
+  "fields": {
+    "full_name": "INGRID SOLVEIG HALVORSEN",
+    "document_number": "X5518944",
+    "date_of_birth": "1987-12-28",
+    "nationality": "Norwegian",
+    "sex": "F",
+    "place_of_birth": "Bergen, Norway",
+    "issue_date": "2024-12-09",
+    "expiry_date": "2034-12-09",
+    "issuing_authority": "Ministry of the Interior"
+  }
+}

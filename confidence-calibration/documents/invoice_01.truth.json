@@ -1,0 +1,48 @@
+{
+  "doc_type": "invoice",
+  "fields": {
+    "invoice_number": "INV-2026-1489",
+    "invoice_date": "2026-07-07",
+    "due_date": "2026-07-21",
+    "vendor_name": "Brightline Logistics Ltd",
+    "vendor_tax_id": "GB 742 118 593",
+    "bill_to_name": "Northwind Capital LLC",
+    "currency": "USD",
+    "subtotal": "36841.78",
+    "tax_rate": "20",
+    "tax_amount": "7368.36",
+    "total_due": "44210.14",
+    "line_items": [
+      {
+        "description": "Emergency callout, engineer attendance",
+        "quantity": "3",
+        "unit_price": "467.14",
+        "amount": "1401.42"
+      },
+      {
+        "description": "Annual maintenance contract, tier B",
+        "quantity": "18",
+        "unit_price": "656.24",
+        "amount": "11812.32"
+      },
+      {
+        "description": "Pallet handling and storage, 30 days",
+        "quantity": "2",
+        "unit_price": "624.74",
+        "amount": "1249.48"
+      },
+      {
+        "description": "Site cleaning, out of hours",
+        "quantity": "3",
+        "unit_price": "325.15",
+        "amount": "975.45"
+      },
+      {
+        "description": "Digital proofing and colour matching",
+        "quantity": "23",
+        "unit_price": "930.57",
+        "amount": "21403.11"
+      }
+    ]
+  }
+}

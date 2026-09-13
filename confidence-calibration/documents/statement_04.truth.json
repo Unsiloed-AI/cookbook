@@ -1,0 +1,57 @@
+{
+  "doc_type": "statement",
+  "fields": {
+    "bank_name": "Northbank Commercial",
+    "account_holder": "Northwind Capital LLC",
+    "account_number": "85-49504-184",
+    "currency": "GBP",
+    "statement_period_start": "2026-07-01",
+    "statement_period_end": "2026-07-31",
+    "opening_balance": "67434.51",
+    "closing_balance": "48130.80",
+    "transactions": [
+      {
+        "date": "2026-07-03",
+        "description": "CARD PURCHASE 4412 STAPLES",
+        "amount": "-116.30",
+        "balance": "67318.21"
+      },
+      {
+        "date": "2026-07-05",
+        "description": "BACS CREDIT MERIDIAN PRINT",
+        "amount": "1253.15",
+        "balance": "68571.36"
+      },
+      {
+        "date": "2026-07-06",
+        "description": "STANDING ORDER OFFICE RENT",
+        "amount": "-2419.01",
+        "balance": "66152.35"
+      },
+      {
+        "date": "2026-07-07",
+        "description": "CARD PURCHASE 4412 AMAZON",
+        "amount": "-41.74",
+        "balance": "66110.61"
+      },
+      {
+        "date": "2026-07-09",
+        "description": "CARD PURCHASE 4412 UBER",
+        "amount": "-35.58",
+        "balance": "66075.03"
+      },
+      {
+        "date": "2026-07-13",
+        "description": "FEE MONTHLY ACCOUNT CHARGE",
+        "amount": "-16.63",
+        "balance": "66058.40"
+      },
+      {
+        "date": "2026-07-21",
+        "description": "SALARY PAYMENT RUN 08",
+        "amount": "-17927.60",
+        "balance": "48130.80"
+      }
+    ]
+  }
+}

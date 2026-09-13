@@ -1,0 +1,51 @@
+{
+  "doc_type": "statement",
+  "fields": {
+    "bank_name": "Caldera Savings & Trust",
+    "account_holder": "Pellham & Rowe Associates",
+    "account_number": "93-17708-299",
+    "currency": "USD",
+    "statement_period_start": "2026-01-01",
+    "statement_period_end": "2026-01-31",
+    "opening_balance": "57883.54",
+    "closing_balance": "45362.73",
+    "transactions": [
+      {
+        "date": "2026-01-02",
+        "description": "SALARY PAYMENT RUN 08",
+        "amount": "-22007.23",
+        "balance": "35876.31"
+      },
+      {
+        "date": "2026-01-23",
+        "description": "CARD PURCHASE 4412 STAPLES",
+        "amount": "-167.54",
+        "balance": "35708.77"
+      },
+      {
+        "date": "2026-01-23",
+        "description": "BACS CREDIT MERIDIAN PRINT",
+        "amount": "6230.10",
+        "balance": "41938.87"
+      },
+      {
+        "date": "2026-01-27",
+        "description": "DIRECT DEBIT BRITISH GAS",
+        "amount": "-515.53",
+        "balance": "41423.34"
+      },
+      {
+        "date": "2026-01-28",
+        "description": "CARD PURCHASE 4412 UBER",
+        "amount": "-38.91",
+        "balance": "41384.43"
+      },
+      {
+        "date": "2026-01-30",
+        "description": "TRANSFER IN REF INV-2291",
+        "amount": "3978.30",
+        "balance": "45362.73"
+      }
+    ]
+  }
+}

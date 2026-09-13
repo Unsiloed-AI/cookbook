@@ -1,0 +1,51 @@
+{
+  "doc_type": "statement",
+  "fields": {
+    "bank_name": "Ostsee Handelsbank AG",
+    "account_holder": "Cobalt Ridge Holdings",
+    "account_number": "95-22261-333",
+    "currency": "EUR",
+    "statement_period_start": "2026-05-01",
+    "statement_period_end": "2026-05-31",
+    "opening_balance": "34527.09",
+    "closing_balance": "30601.23",
+    "transactions": [
+      {
+        "date": "2026-05-08",
+        "description": "TRANSFER IN REF INV-2291",
+        "amount": "10481.14",
+        "balance": "45008.23"
+      },
+      {
+        "date": "2026-05-14",
+        "description": "STANDING ORDER OFFICE RENT",
+        "amount": "-1861.09",
+        "balance": "43147.14"
+      },
+      {
+        "date": "2026-05-20",
+        "description": "FEE MONTHLY ACCOUNT CHARGE",
+        "amount": "-36.07",
+        "balance": "43111.07"
+      },
+      {
+        "date": "2026-05-22",
+        "description": "DIRECT DEBIT BRITISH GAS",
+        "amount": "-528.79",
+        "balance": "42582.28"
+      },
+      {
+        "date": "2026-05-29",
+        "description": "SALARY PAYMENT RUN 08",
+        "amount": "-11957.00",
+        "balance": "30625.28"
+      },
+      {
+        "date": "2026-05-31",
+        "description": "CARD PURCHASE 4412 UBER",
+        "amount": "-24.05",
+        "balance": "30601.23"
+      }
+    ]
+  }
+}

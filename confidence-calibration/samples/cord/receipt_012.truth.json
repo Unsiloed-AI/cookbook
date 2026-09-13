@@ -1,0 +1,26 @@
+{
+  "doc_type": "receipt",
+  "source": "naver-clova-ix/cord-v2 [test] row 12",
+  "licence": "CC-BY-4.0, NAVER CLOVA AI Research",
+  "image_size": {
+    "width": 576,
+    "height": 864
+  },
+  "fields": {
+    "total_price": "120,000",
+    "change_price": "0",
+    "credit_card_price": "120,000",
+    "line_items": [
+      {
+        "name": "BLUS WANITA",
+        "quantity": "1",
+        "unit_price": "@120,000"
+      },
+      {
+        "name": "SHOPPING BAG",
+        "quantity": "1",
+        "unit_price": "@880"
+      }
+    ]
+  }
+}

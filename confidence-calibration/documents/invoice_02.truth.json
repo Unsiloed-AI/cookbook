@@ -1,0 +1,42 @@
+{
+  "doc_type": "invoice",
+  "fields": {
+    "invoice_number": "INV-2026-8771",
+    "invoice_date": "2026-08-17",
+    "due_date": "2026-08-31",
+    "vendor_name": "Meridian Print Services",
+    "vendor_tax_id": "US 84-2917553",
+    "bill_to_name": "Aldergate Pharma Inc",
+    "currency": "USD",
+    "subtotal": "16617.01",
+    "tax_rate": "7.5",
+    "tax_amount": "1246.28",
+    "total_due": "17863.29",
+    "line_items": [
+      {
+        "description": "Pallet handling and storage, 30 days",
+        "quantity": "19",
+        "unit_price": "115.95",
+        "amount": "2203.05"
+      },
+      {
+        "description": "Customs documentation processing",
+        "quantity": "8",
+        "unit_price": "322.33",
+        "amount": "2578.64"
+      },
+      {
+        "description": "Temperature-controlled container hire",
+        "quantity": "24",
+        "unit_price": "311.83",
+        "amount": "7483.92"
+      },
+      {
+        "description": "Emergency callout, engineer attendance",
+        "quantity": "5",
+        "unit_price": "870.28",
+        "amount": "4351.40"
+      }
+    ]
+  }
+}

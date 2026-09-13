@@ -1,0 +1,42 @@
+{
+  "doc_type": "invoice",
+  "fields": {
+    "invoice_number": "INV-2026-6547",
+    "invoice_date": "2026-05-04",
+    "due_date": "2026-05-18",
+    "vendor_name": "Tanaka Precision KK",
+    "vendor_tax_id": "JP 6010401 09287",
+    "bill_to_name": "Cobalt Ridge Holdings",
+    "currency": "GBP",
+    "subtotal": "18963.13",
+    "tax_rate": "19",
+    "tax_amount": "3602.99",
+    "total_due": "22566.12",
+    "line_items": [
+      {
+        "description": "Customs documentation processing",
+        "quantity": "6",
+        "unit_price": "809.52",
+        "amount": "4857.12"
+      },
+      {
+        "description": "Site cleaning, out of hours",
+        "quantity": "15",
+        "unit_price": "53.37",
+        "amount": "800.55"
+      },
+      {
+        "description": "Temperature-controlled container hire",
+        "quantity": "10",
+        "unit_price": "627.47",
+        "amount": "6274.70"
+      },
+      {
+        "description": "Emergency callout, engineer attendance",
+        "quantity": "19",
+        "unit_price": "370.04",
+        "amount": "7030.76"
+      }
+    ]
+  }
+}

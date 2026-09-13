@@ -1,0 +1,14 @@
+{
+  "doc_type": "id_card",
+  "fields": {
+    "full_name": "ROWAN ELISE MARCHETTI",
+    "document_number": "T6245512",
+    "date_of_birth": "1969-07-09",
+    "nationality": "Maltese",
+    "sex": "F",
+    "place_of_birth": "Valletta, Malta",
+    "issue_date": "2024-05-18",
+    "expiry_date": "2034-05-18",
+    "issuing_authority": "Ministry of the Interior"
+  }
+}
