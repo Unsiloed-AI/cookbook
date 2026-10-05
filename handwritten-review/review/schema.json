@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "properties": {
+    "redline": {
+      "type": "string",
+      "description": "Transcribe ALL printed text of the document in reading order, exactly as printed (keep printed misspellings), and mark every handwritten markup inline using CriticMarkup: {~~printed words~>handwritten replacement~~} when handwriting replaces struck-through or marked printed words; {--printed words--} for printed words struck through with no replacement; {++handwritten words++} for handwriting inserted (caret, leader line, or written in a gap); {>>margin note, gloss or proofreading mark such as sp, cap, lc, paragraph<<} placed directly after the printed words it refers to. A struck-through word must stay inside the markup, never silently dropped. Copy handwriting verbatim with its spelling; write [?] for unreadable characters. Do not correct anything that is not marked. Underlining alone is a comment, not a deletion."
+    },
+    "changes": {
+      "type": "array",
+      "description": "One entry per CriticMarkup tag in redline, same order.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "substitution",
+              "deletion",
+              "insertion",
+              "comment"
+            ]
+          },
+          "printed_text": {
+            "type": "string",
+            "description": "The printed words struck through, replaced, or commented on. Empty for a pure insertion."
+          },
+          "handwritten_text": {
+            "type": "string",
+            "description": "Verbatim handwriting. Empty for a pure deletion."
+          },
+          "anchor": {
+            "type": "string",
+            "description": "3-6 printed words around the change, so a reviewer can find it."
+          },
+          "needs_review": {
+            "type": "boolean",
+            "description": "true if the handwriting is hard to read, the span of the strike is unclear, or it is unclear what the mark refers to."
+          }
+        },
+        "required": [
+          "kind",
+          "printed_text",
+          "handwritten_text",
+          "anchor",
+          "needs_review"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "redline",
+    "changes"
+  ],
+  "additionalProperties": false
+}
