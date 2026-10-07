@@ -6,7 +6,7 @@ import pymupdf
 from PIL import Image, ImageSequence
 
 MIN_LONG_SIDE = 2000  # small scans are upscaled to at least this many pixels
-MAX_LONG_SIDE = 3500  # larger scans are scaled down to this
+MAX_LONG_SIDE = 2500  # larger scans are scaled down to this, which keeps uploads small
 
 
 def zoom_for(page: pymupdf.Page) -> float:

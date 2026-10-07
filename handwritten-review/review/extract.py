@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 BASE_URL = "https://prod.visionapi.unsiloed.ai"
-MODEL = "gamma"  # the extraction model best suited to handwriting
+MODEL = "gamma"  # the default tier; see the API reference for the others
 
 SCHEMA = (Path(__file__).parent / "schema.json").read_text()
 
