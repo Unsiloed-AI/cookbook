@@ -37,6 +37,14 @@ Recipes built around a specific model, SDK, or agent framework.
 | n8n | [Unsiloed node](./n8n-nodes-unsiloed/) | Community node to parse and extract documents with Unsiloed inside n8n workflows |
 | Snowflake | [SQL UDF](./snowflake/) | Python UDF that extracts documents from a Snowflake stage entirely in SQL, returning fields with confidence scores and citations |
 
+### Provider-agnostic recipes
+
+Apps and guides built on the Unsiloed API alone, with no model provider or agent framework.
+
+| Recipe | Description |
+|--------|-------------|
+| [Markup Review](./handwritten-review/) | Review handwritten edits on scanned documents: each page is read twice as a tracked-changes transcript, disagreements and low-confidence changes are flagged, and a reviewer accepts or rejects each change against a close-up of the scan |
+
 ### Portable agent skills
 
 Runtime-agnostic `SKILL.md` files — YAML frontmatter plus bash instructions — that plug into any skill-capable agent: Claude Code, Claude.ai, Hermes, OpenClaw, custom runtimes.

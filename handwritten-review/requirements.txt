@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+python-multipart
+requests
+pymupdf
+pillow
+python-dotenv

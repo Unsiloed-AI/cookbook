@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markup Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --desk:#D9E0E6; --sheet:#FFFFFF; --ink:#1B2430; --muted:#5D6B7A; --line:#C5CED6;
+  --pencil:#2F5DA8;
+  --ins:#1F7A4D; --ins-soft:#E2F2E9; --del:#B3261E; --del-soft:#FBE7E5;
+  --note:#6B4FA0; --note-soft:#EFEAF7; --flag:#A3650C; --flag-soft:#FBF0DC;
+  --ui:'Instrument Sans',system-ui,sans-serif; --read:'Newsreader',Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--desk);color:var(--ink);font:15px/1.45 var(--ui);display:flex;flex-direction:column}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+
+.bar{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--sheet);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar h1{font:600 16px/1 var(--ui);margin:0 6px 0 0;letter-spacing:-.01em}
+.bar select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--sheet);max-width:320px}
+.tally{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:13px;color:var(--muted)}
+.meter{width:180px;height:8px;border-radius:4px;background:#E6EBEF;overflow:hidden;display:flex}
+.meter i{display:block;height:100%}
+.btn{padding:7px 12px;border-radius:6px;border:1px solid var(--line);background:var(--sheet)}
+.btn:hover{background:#F1F4F7}
+.btn.primary{background:var(--pencil);border-color:var(--pencil);color:#fff}
+.btn.primary:hover{background:#264E8F}
+.btn.danger{border-color:var(--del);color:#fff;background:var(--del)}
+.btn:disabled{opacity:.45;cursor:default}
+
+.work{flex:1;display:grid;grid-template-columns:minmax(320px,44%) 1fr;gap:14px;padding:14px;min-height:0}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:8px;min-height:0;display:flex;flex-direction:column}
+.panel-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+.panel-head strong{color:var(--ink);font-weight:600}
+.scroll{overflow:auto;flex:1;min-height:0}
+
+.pages{padding:14px;background:#EEF1F4}
+.page{position:relative;margin:0 auto 14px;box-shadow:0 1px 2px rgba(27,36,48,.25);background:#fff}
+.page img{display:block;width:100%}
+.box{position:absolute;border:2px solid transparent;border-radius:3px;cursor:pointer}
+.box.k-substitution,.box.k-deletion{border-color:rgba(179,38,30,.55)}
+.box.k-insertion{border-color:rgba(31,122,77,.6)}
+.box.k-comment{border-color:rgba(107,79,160,.55)}
+.box.outside{border-style:dashed}
+.box.done{opacity:.35}
+.box.current{border-color:var(--pencil);border-width:3px;box-shadow:0 0 0 4px rgba(47,93,168,.25);opacity:1}
+.legend{display:flex;gap:12px;margin-left:auto;font-size:12px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border:2px solid;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.legend .l-del::before{border-color:var(--del)} .legend .l-ins::before{border-color:var(--ins)} .legend .l-note::before{border-color:var(--note)}
+
+.right{display:grid;grid-template-rows:auto 1fr;gap:14px;min-height:0}
+.card{padding:14px 18px 12px}
+.card-top{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.pos{font-size:13px;color:var(--muted)}
+.kind{font-weight:600;font-size:13px;padding:2px 8px;border-radius:999px}
+.kind.k-substitution,.kind.k-deletion{background:var(--del-soft);color:var(--del)}
+.kind.k-insertion{background:var(--ins-soft);color:var(--ins)}
+.kind.k-comment{background:var(--note-soft);color:var(--note)}
+.nav{margin-left:auto;display:flex;gap:6px}
+.loupe{width:100%;height:190px;border-radius:6px;background:#F3F5F7;border:1px solid var(--line);display:block;object-fit:contain}
+.noloc{height:80px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:6px;padding:0 20px;text-align:center}
+.reading{display:grid;grid-template-columns:100px 1fr;gap:4px 12px;margin:12px 0 8px;align-items:center}
+.reading label{font-size:13px;color:var(--muted)}
+.printed{font:17px/1.35 var(--read);text-decoration:line-through;text-decoration-color:var(--del);text-decoration-thickness:1.5px}
+.printed.keep{text-decoration:none}
+.hw{font:17px/1.35 var(--read);width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:#FBFCFD}
+.hw:focus{border-color:var(--pencil);outline:none;background:#fff}
+.anchor{font:15px/1.4 var(--read);color:var(--muted)}
+.flags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.flag{font-size:13px;padding:3px 9px;border-radius:5px;background:var(--flag-soft);color:var(--flag)}
+.second{border-left:3px solid var(--flag);background:var(--flag-soft);padding:8px 12px;border-radius:0 6px 6px 0;margin:0 0 12px;font-size:14px}
+.second b{font-weight:600}
+.second .q{font-family:var(--read);font-size:16px}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.actions .accept{background:var(--ins);border-color:var(--ins);color:#fff}
+.actions .reject{border-color:var(--del);color:var(--del)}
+.actions .on{box-shadow:inset 0 0 0 2px var(--ink)}
+.typerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.typerow select{padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:13px}
+.inline{font-size:13px;color:var(--ink);display:flex;align-items:center;gap:5px}
+.edited{font-size:12px;color:var(--pencil);background:#E3EBF7;border-radius:4px;padding:1px 7px}
+.btn.small{padding:3px 9px;font-size:13px;margin-left:8px}
+.keys{margin-left:auto;font-size:12px;color:var(--muted)}
+kbd{font:12px var(--ui);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:#fff}
+
+.tabs{display:flex;gap:2px;background:#E6EBEF;border-radius:6px;padding:2px}
+.tabs button{border:0;background:transparent;padding:4px 10px;border-radius:5px;font-size:13px}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.text{padding:20px 26px 40px;font:18px/1.75 var(--read);max-width:76ch;white-space:pre-wrap}
+.c{cursor:pointer;border-radius:3px;padding:1px}
+.c.cur{outline:2px solid var(--pencil);outline-offset:1px}
+.c .d{color:var(--del);text-decoration:line-through;text-decoration-thickness:1.5px}
+.c .a{color:var(--ins);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.c .n{color:var(--note);font:500 13px var(--ui);background:var(--note-soft);border-radius:4px;padding:1px 6px;margin-left:2px;vertical-align:2px}
+.c.pending{background:var(--flag-soft)}
+.c.pending.flagged{box-shadow:inset 0 -2px 0 var(--flag)}
+.c.rejected .a,.c.rejected .n{text-decoration:line-through;opacity:.5;color:var(--muted)}
+.c.rejected .d{text-decoration:none;color:inherit}
+.work > .empty{grid-column:1 / -1}
+.empty{margin:auto;text-align:center;color:var(--muted);padding:40px;max-width:440px}
+.empty h2{font:500 22px/1.3 var(--read);color:var(--ink);margin:0 0 8px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:6px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.spinner{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--pencil);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation:none}}
+/* Narrow screens: stack the panels and let the page scroll, instead of fitting everything in the window */
+@media (max-width:900px){
+  html,body{height:auto}
+  .work,.right{display:flex;flex-direction:column}
+  .panel{min-height:auto}
+  .pages,.right .scroll{max-height:60vh}
+  .tally .meter,.legend,.keys{display:none}
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <h1>Markup Review</h1>
+  <select id="docSelect" aria-label="Document"></select>
+  <button class="btn" id="deleteBtn" title="Delete this document and its review">Delete</button>
+  <button class="btn" id="uploadBtn">Upload scan</button>
+  <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.webp" hidden>
+  <div class="tally">
+    <span id="tallyText"></span>
+    <div class="meter" id="meter"></div>
+    <button class="btn" id="bulkBtn" title="Accept every change that has no warning">Accept unflagged</button>
+    <button class="btn primary" id="exportBtn">Export</button>
+  </div>
+</header>
+<main class="work" id="work">
+  <div class="empty"><h2>Upload a scan to start</h2>Select <b>Upload scan</b> and choose a PDF or an image of a printed page with handwritten edits.</div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// This page only draws what the API returns. Parsing, comparing reads and flagging all happen in redline.py.
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LABEL = {substitution:'Replacement', deletion:'Deletion', insertion:'Insertion', comment:'Note'};
+
+let doc = null, changes = [], decisions = {}, cleanText = '';
+let cur = 0, view = 'markup', pollTimer = null;
+const pageImages = [];
+
+const stateOf = c => decisions[c.id]?.state || 'pending';
+const handwritingOf = c => decisions[c.id]?.handwriting ?? c.handwriting;
+const kindOf = c => decisions[c.id]?.kind || c.kind;
+const oneLine = s => String(s ?? '').trim().replace(/\s*\n\s*/g, ' ');
+const isFlagged = c => c.flags.length > 0;
+
+/* ---------- layout ---------- */
+function renderShell(){
+  $('#work').innerHTML = `
+  <section class="panel" aria-label="Scan">
+    <div class="panel-head"><strong>Scan</strong>
+      <div class="legend"><span class="l-del">Replace or delete</span><span class="l-ins">Insert</span><span class="l-note">Note</span></div></div>
+    <div class="scroll pages" id="pages"></div>
+  </section>
+  <div class="right">
+    <section class="panel card" id="card" aria-live="polite"></section>
+    <section class="panel" aria-label="Transcript">
+      <div class="panel-head"><strong>Transcript</strong>
+        <div class="tabs">
+          <button data-view="markup" class="${view === 'markup' ? 'on' : ''}">Marked up</button>
+          <button data-view="clean" class="${view === 'clean' ? 'on' : ''}">Clean result</button>
+        </div>
+      </div>
+      <div class="scroll"><div class="text" id="text"></div></div>
+    </section>
+  </div>`;
+  document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+    view = b.dataset.view;
+    document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+    renderText();
+  });
+  const pages = $('#pages');
+  for (let n = 1; n <= doc.pages; n++){
+    const wrap = document.createElement('div'); wrap.className = 'page'; wrap.dataset.page = n;
+    const img = new Image(); img.src = `/documents/${doc.id}/pages/${n}.png`; img.alt = `Page ${n}`;
+    img.onload = renderCard;
+    wrap.appendChild(img); pages.appendChild(wrap); pageImages[n] = img;
+  }
+}
+
+/* ---------- boxes on the scan ---------- */
+function renderBoxes(){
+  document.querySelectorAll('.box').forEach(b => b.remove());
+  changes.forEach((c, i) => {
+    if (!c.box) return;
+    const wrap = document.querySelector(`.page[data-page="${c.box.page}"]`); if (!wrap) return;
+    const b = document.createElement('div');
+    b.className = `box k-${kindOf(c)}` + (c.in_transcript ? '' : ' outside') + (stateOf(c) !== 'pending' ? ' done' : '') + (i === cur ? ' current' : '');
+    Object.assign(b.style, {left: c.box.left * 100 + '%', top: c.box.top * 100 + '%', width: c.box.width * 100 + '%', height: c.box.height * 100 + '%'});
+    b.title = `${LABEL[kindOf(c)]}: ${oneLine(handwritingOf(c)) || c.printed}`;
+    b.onclick = () => go(i);
+    wrap.appendChild(b);
+  });
+}
+
+/* ---------- close-up of the marked area ---------- */
+function loupe(c){
+  const img = c.box && pageImages[c.box.page];
+  if (!img || !img.naturalWidth) return null;
+  const W = img.naturalWidth, H = img.naturalHeight;
+  const x0 = c.box.left * W, y0 = c.box.top * H, w = c.box.width * W, h = c.box.height * H;
+  const slot = $('#loupeSlot'), aspect = slot.clientWidth / 190 || 4;
+  let cw = w + 2 * Math.max(w * .6, 160), ch = h + 2 * Math.max(h * 1.1, 60);
+  if (cw / ch < aspect) cw = ch * aspect; else ch = cw / aspect;
+  const cx = Math.max(0, x0 + w / 2 - cw / 2), cy = Math.max(0, y0 + h / 2 - ch / 2);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.min(cw, W - cx); canvas.height = Math.min(ch, H - cy);
+  const g = canvas.getContext('2d');
+  g.drawImage(img, cx, cy, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+  g.strokeStyle = '#2F5DA8'; g.lineWidth = Math.max(2, canvas.width / 300);
+  g.strokeRect(x0 - cx - 4, y0 - cy - 4, w + 8, h + 8);
+  canvas.className = 'loupe'; canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', 'Close-up of the marked area');
+  return canvas;
+}
+
+/* ---------- the change being reviewed ---------- */
+function renderCard(){
+  const card = $('#card'); if (!card) return;
+  if (!changes.length){
+    card.innerHTML = `<div class="empty"><h2>No handwritten changes found</h2>Unsiloed returned a transcript with no marked edits. If the page does have handwriting, check that the scan is sharp and upload it again.</div>`;
+    return;
+  }
+  const c = changes[cur], state = stateOf(c), kind = kindOf(c), d = decisions[c.id] || {};
+  const printedLabel = kind === 'comment' ? 'Refers to' : !c.printed ? 'Near' : 'Printed';
+  const printed = kind === 'comment' ? (c.target || c.anchor) : (c.printed || c.anchor);
+  const struck = (kind === 'substitution' || kind === 'deletion') && c.printed;
+  const second = c.second_read;
+  card.innerHTML = `
+    <div class="card-top">
+      <span class="kind k-${kind}">${LABEL[kind]}</span>
+      <span class="pos">${cur + 1} of ${changes.length}</span>
+      <div class="nav"><button class="btn" id="prev">Previous</button><button class="btn" id="next">Next</button></div>
+    </div>
+    <div id="loupeSlot"></div>
+    <div class="reading">
+      <label>${printedLabel}</label>
+      <div class="printed ${struck ? '' : 'keep'}">${esc(printed) || '<span class="anchor">(none)</span>'}</div>
+      ${kind !== 'deletion' ? `<label for="hwInput">${kind === 'comment' ? 'Note says' : 'Handwriting'}</label><input class="hw" id="hwInput" value="${esc(oneLine(handwritingOf(c)))}">` : ''}
+      ${c.anchor && c.printed ? `<label>Context</label><div class="anchor">…${esc(c.anchor)}…</div>` : ''}
+      ${c.in_transcript ? `<label for="kindSelect">Type</label>
+      <div class="typerow"><select id="kindSelect">${Object.entries(LABEL).map(([k, l]) => `<option value="${k}" ${k === kind ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        ${kind === 'insertion' && c.printed ? `<label class="inline"><input type="checkbox" id="beforeCheck" ${d.before ? 'checked' : ''}> Insert before “${esc(c.printed)}”</label>` : ''}
+        ${d.kind || d.handwriting !== undefined ? `<span class="edited">Edited</span>` : ''}</div>` : ''}
+    </div>
+    ${c.flags.length ? `<div class="flags">${c.flags.map(f => `<span class="flag">${esc(f)}</span>`).join('')}</div>` : ''}
+    ${second ? `<div class="second"><b>Second read:</b> <span class="q">${describe(second)}</span>
+      ${c.in_transcript ? `<button class="btn small" id="useSecond">Use this reading</button> <span class="keys"><kbd>2</kbd></span>` : ''}</div>` : ''}
+    ${c.in_transcript ? `
+    <div class="actions">
+      <button class="btn accept ${state === 'accepted' ? 'on' : ''}" id="accept">${kind === 'comment' ? 'Keep note' : 'Accept change'}</button>
+      <button class="btn reject ${state === 'rejected' ? 'on' : ''}" id="reject">${kind === 'comment' ? 'Discard note' : 'Reject change'}</button>
+      ${state !== 'pending' || d.kind || d.handwriting !== undefined ? `<button class="btn" id="undo">Undo</button>` : ''}
+      <span class="keys"><kbd>A</kbd> accept <kbd>R</kbd> reject <kbd>E</kbd> edit <kbd>J</kbd>/<kbd>K</kbd> next/previous</span>
+    </div>` : `
+    <div class="actions">
+      <span class="anchor" style="font-size:14px">This mark isn't in the first read's transcript. Check it on the scan, and fix the clean text after export if it's a real edit.</span>
+      <button class="btn ${state === 'checked' ? 'on' : ''}" id="checked">Mark as checked</button>
+    </div>`}`;
+  $('#loupeSlot').appendChild(loupe(c) || Object.assign(document.createElement('div'), {
+    className: 'noloc', textContent: c.box ? 'Loading scan…' : 'Unsiloed returned no location for this change. Use the context words to find it.'}));
+  $('#prev').onclick = () => step(-1);
+  $('#next').onclick = () => step(1);
+  $('#accept')?.addEventListener('click', () => decide('accepted'));
+  $('#reject')?.addEventListener('click', () => decide('rejected'));
+  $('#checked')?.addEventListener('click', () => decide('checked'));
+  $('#undo')?.addEventListener('click', () => { delete decisions[c.id]; save(); renderAll(); });
+  $('#useSecond')?.addEventListener('click', useSecondRead);
+  $('#kindSelect')?.addEventListener('change', e => { update(c, {kind: e.target.value === c.kind ? undefined : e.target.value}); renderAll(); });
+  $('#beforeCheck')?.addEventListener('change', e => { update(c, {before: e.target.checked}); renderText(); });
+  const input = $('#hwInput');
+  if (input){
+    input.oninput = () => { update(c, {handwriting: input.value}, false); renderText(); };
+    input.onchange = () => save();  // saved when you press Enter or leave the field
+    input.onkeydown = ev => { ev.stopPropagation(); if (ev.key === 'Enter'){ input.blur(); decide('accepted'); } if (ev.key === 'Escape') input.blur(); };
+  }
+}
+function describe(s){
+  if (s.kind === 'substitution') return `<s style="color:var(--del)">${esc(s.printed)}</s> → ${esc(oneLine(s.handwriting))}`;
+  if (s.kind === 'deletion') return `delete <s style="color:var(--del)">${esc(s.printed)}</s>`;
+  if (s.kind === 'insertion') return `insert “${esc(oneLine(s.handwriting))}”`;
+  return `note “${esc(oneLine(s.handwriting))}”`;
+}
+function update(c, fields, persist = true){
+  const d = {...decisions[c.id], ...fields};
+  Object.keys(d).forEach(k => d[k] === undefined && delete d[k]);
+  decisions[c.id] = d;
+  if (persist) save();
+}
+function useSecondRead(){
+  const c = changes[cur], s = c.second_read; if (!s || !c.in_transcript) return;
+  // Take the second read's wording and type. Its printed span can differ slightly, so the
+  // printed words in the transcript stay as the first read had them.
+  update(c, {handwriting: s.handwriting, kind: s.kind === c.kind ? undefined : s.kind});
+  renderAll();
+  toast('Using the second read. Accept the change to apply it.');
+}
+
+/* ---------- transcript ---------- */
+function renderText(){
+  const el = $('#text'); if (!el) return;
+  if (view === 'clean'){ el.textContent = cleanText; return; }
+  const byId = Object.fromEntries(changes.map((c, i) => [c.id, i]));
+  el.innerHTML = doc.review.segments.map(seg => {
+    if ('text' in seg) return esc(seg.text);
+    const i = byId[seg.change], c = changes[i], hw = esc(handwritingOf(c)), kind = kindOf(c), p = esc(c.printed);
+    const before = decisions[c.id]?.before;
+    const inner = kind === 'substitution' ? `<span class="d">${p}</span><span class="a">${hw}</span>`
+      : kind === 'deletion' ? `<span class="d">${p}</span>`
+      : kind === 'insertion' ? (before ? `<span class="a">${hw}</span> ${p}` : `${p}${p ? ' ' : ''}<span class="a">${hw}</span>`)
+      : `${p}<span class="n">${hw}</span>`;
+    return `<span class="c ${stateOf(c)} ${isFlagged(c) ? 'flagged' : ''} ${i === cur ? 'cur' : ''}" data-i="${i}" title="${esc(c.flags.join(', '))}">${inner}</span>`;
+  }).join('');
+  el.querySelectorAll('.c').forEach(span => span.onclick = () => go(+span.dataset.i));
+}
+
+function renderTally(){
+  const n = changes.length, count = s => changes.filter(c => stateOf(c) === s).length;
+  const accepted = count('accepted'), rejected = count('rejected') + count('checked');
+  const flaggedLeft = changes.filter(c => stateOf(c) === 'pending' && isFlagged(c)).length;
+  $('#tallyText').textContent = n ? `${accepted + rejected} of ${n} reviewed, ${flaggedLeft} flagged left` : '';
+  $('#meter').innerHTML = n ? `<i style="width:${accepted / n * 100}%;background:var(--ins)"></i><i style="width:${rejected / n * 100}%;background:var(--del)"></i>` : '';
+  $('#bulkBtn').disabled = !changes.some(c => c.in_transcript && stateOf(c) === 'pending' && !isFlagged(c));
+  $('#exportBtn').disabled = !doc?.review;  // a page with no edits still exports its transcript
+}
+function renderAll(){ renderCard(); renderText(); renderBoxes(); renderTally(); }
+
+/* ---------- decisions ---------- */
+// Each save sends the document's full set of decisions. Saves run one at a time, in order, so a
+// slow save can't overwrite a newer one. Anything that needs the saved state (export, switching
+// or deleting documents) calls savesSettled(), which waits for every save, including ones added
+// while it waits, and returns false if the latest save failed.
+let saveChain = Promise.resolve(true), pendingSaves = 0;
+function save(){
+  const id = doc.id, body = JSON.stringify(decisions);
+  pendingSaves++;
+  saveChain = saveChain.then(async () => {
+    try {
+      const r = await fetch(`/documents/${id}/decisions`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body});
+      if (!r.ok) throw new Error(r.status);
+      const data = await r.json();
+      if (doc && doc.id === id){ cleanText = data.clean_text; if (view === 'clean') renderText(); }
+      return true;
+    } catch {
+      toast("Couldn't save your last decision. Check that the server is running, then try again.");
+      return false;
+    } finally {
+      pendingSaves--;
+    }
+  });
+  return saveChain;
+}
+async function savesSettled(){
+  let saved = await saveChain;
+  while (pendingSaves > 0) saved = await saveChain;
+  return saved;
+}
+addEventListener('beforeunload', e => { if (pendingSaves > 0) e.preventDefault(); });  // the browser asks before closing mid-save
+function decide(state, advance = true){
+  const c = changes[cur];
+  update(c, {state});
+  if (advance){
+    const next = changes.find((x, k) => k > cur && stateOf(x) === 'pending') || changes.find(x => stateOf(x) === 'pending');
+    if (next){ go(changes.indexOf(next)); return; }
+  }
+  renderAll();
+}
+function go(i){
+  cur = Math.max(0, Math.min(changes.length - 1, i));
+  renderAll();
+  document.querySelector('.box.current')?.scrollIntoView({block: 'center', behavior: 'smooth'});
+  document.querySelector('.c.cur')?.scrollIntoView({block: 'nearest'});
+}
+function step(d){ if (changes.length) go(cur + d); }
+
+$('#bulkBtn').onclick = () => {
+  const todo = changes.filter(c => c.in_transcript && stateOf(c) === 'pending' && !isFlagged(c));
+  todo.forEach(c => decisions[c.id] = {...decisions[c.id], state: 'accepted'});
+  save();
+  const left = changes.filter(c => stateOf(c) === 'pending');
+  toast(`Accepted ${todo.length} unflagged change${todo.length === 1 ? '' : 's'}${left.length ? `, ${left.length} left to review` : ''}`);
+  if (left.length) go(changes.indexOf(left[0])); else renderAll();
+};
+
+$('#exportBtn').onclick = async () => {
+  if (!await savesSettled()) return;
+  const data = await (await fetch(`/documents/${doc.id}/export`)).json();
+  const base = (data.document || 'document').replace(/\.[^.]+$/, '').replace(/[^\w-]+/g, '-');
+  download(`${base}-clean.txt`, data.clean_text, 'text/plain');
+  download(`${base}-review.json`, JSON.stringify(data, null, 2), 'application/json');
+  const pending = data.changes.filter(c => c.decision === 'pending').length;
+  toast(pending ? `Exported. ${pending} unreviewed change${pending === 1 ? ' was' : 's were'} left as printed.` : 'Exported the clean text and review log');
+};
+function download(name, text, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function toast(message){ const t = $('#toast'); t.textContent = message; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 2400); }
+
+document.addEventListener('keydown', ev => {
+  if (switching || ev.target.matches('input:not([type=checkbox]),select') || ev.metaKey || ev.ctrlKey || !changes.length) return;
+  const k = ev.key.toLowerCase(), c = changes[cur];
+  if (k === 'j' || k === 'arrowdown'){ step(1); ev.preventDefault(); }
+  else if (k === 'k' || k === 'arrowup'){ step(-1); ev.preventDefault(); }
+  else if (k === 'a' && c.in_transcript) decide('accepted');
+  else if (k === 'r' && c.in_transcript) decide('rejected');
+  else if (k === 'u') decide('pending', false);
+  else if (k === '2') useSecondRead();
+  else if (k === 'e'){ const input = $('#hwInput'); if (input){ input.focus(); input.select(); ev.preventDefault(); } }
+});
+
+/* ---------- documents, upload, polling ---------- */
+async function loadDocuments(select){
+  const list = await (await fetch('/documents')).json();
+  $('#docSelect').innerHTML = list.map(d => `<option value="${d.id}">${esc(d.name || d.id)}${d.state === 'ready' ? '' : ` (${d.state})`}</option>`).join('');
+  const wanted = select || location.hash.slice(1);
+  const id = list.some(d => d.id === wanted) ? wanted : list[0]?.id;
+  $('#deleteBtn').disabled = !id;
+  if (id){ $('#docSelect').value = id; openDocument(id); return; }
+  doc = null; changes = []; renderTally();
+  $('#work').innerHTML = `<div class="empty"><h2>Upload a scan to start</h2>Select <b>Upload scan</b> and choose a PDF or an image of a printed page with handwritten edits.</div>`;
+}
+$('#docSelect').onchange = e => openDocument(e.target.value);
+
+// Opening a document waits for the current one's saves, with the review screen frozen so nothing
+// new can be decided meanwhile. Each call takes a ticket, and a response for an older selection
+// is ignored, so quick clicks through the menu always end on the last document picked.
+let navTicket = 0, switching = false;
+async function openDocument(id){
+  const ticket = ++navTicket;
+  clearTimeout(pollTimer);
+  if (doc && doc.id !== id){
+    switching = true; $('#work').inert = true;
+    const saved = await savesSettled();
+    switching = false; $('#work').inert = false;
+    if (ticket !== navTicket) return;
+    if (!saved){
+      $('#docSelect').value = doc.id;  // stay on the document whose decisions couldn't be saved
+      return;
+    }
+  }
+  const next = await (await fetch(`/documents/${id}`)).json();
+  if (ticket !== navTicket) return;
+  location.hash = id;
+  doc = next;
+  const option = [...$('#docSelect').options].find(o => o.value === id);
+  if (option) option.textContent = (doc.name || id) + (doc.state === 'ready' ? '' : ` (${doc.state})`);
+  if (doc.state === 'failed'){
+    changes = []; renderTally();
+    $('#work').innerHTML = `<div class="empty"><h2>Reading failed</h2>${esc(doc.error)}<br><br>Upload the scan again. If it fails twice, try a smaller or sharper scan.</div>`;
+    return;
+  }
+  if (doc.state !== 'ready'){
+    changes = []; renderTally();
+    const seconds = doc.started ? Math.round(Date.now() / 1000 - doc.started) : 0;
+    $('#work').innerHTML = `<div class="empty"><div class="spinner"></div><h2>Reading ${esc(doc.name)}</h2>${doc.state === 'reading'
+      ? `Unsiloed is reading each page twice so the two reads can be compared. This usually takes 1–2 minutes.${seconds ? ` (${seconds}s)` : ''}`
+      : 'Rendering the pages at full resolution…'}</div>`;
+    pollTimer = setTimeout(() => openDocument(id), 3000);
+    return;
+  }
+  changes = doc.review.changes;
+  decisions = doc.decisions || {};
+  cleanText = doc.clean_text;
+  cur = Math.max(0, changes.findIndex(c => stateOf(c) === 'pending'));
+  renderShell();
+  renderAll();
+}
+
+async function upload(file){
+  const body = new FormData(); body.append('file', file);
+  const r = await fetch('/documents', {method: 'POST', body});
+  const data = await r.json();
+  if (!r.ok){ toast(data.detail || 'Upload failed'); return; }
+  loadDocuments(data.id);
+}
+$('#uploadBtn').onclick = () => $('#fileInput').click();
+
+// Two clicks to delete, so a stray click can't remove a review in progress
+let deleteArmed = null;
+$('#deleteBtn').onclick = async () => {
+  if (!doc) return;
+  const btn = $('#deleteBtn');
+  if (!deleteArmed){
+    btn.textContent = 'Confirm delete'; btn.classList.add('danger');
+    deleteArmed = setTimeout(() => { deleteArmed = null; btn.textContent = 'Delete'; btn.classList.remove('danger'); }, 3000);
+    return;
+  }
+  clearTimeout(deleteArmed); deleteArmed = null; btn.textContent = 'Delete'; btn.classList.remove('danger');
+  await savesSettled();  // let any save to this document finish first
+  await fetch(`/documents/${doc.id}`, {method: 'DELETE'});
+  toast(`Deleted ${doc.name}`);
+  location.hash = ''; doc = null;
+  loadDocuments();
+};
+$('#fileInput').onchange = e => { if (e.target.files[0]) upload(e.target.files[0]); e.target.value = ''; };
+
+loadDocuments();
+</script>
+</body>
+</html>
